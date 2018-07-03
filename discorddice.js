@@ -962,10 +962,8 @@ try {
                     if (actor.initiative > highest) {
                         highest = actor.initiative;
                         active = [actor];
-                        oldActors = [JSON.parse(JSON.stringify(actor))];
                     } else if (actor.initiative === highest) {
                         active.push(actor);
-                        oldActors.push(JSON.parse(JSON.stringify(actor)));
                     }
                 }
             });
@@ -974,7 +972,6 @@ try {
                 output = highest + ':';
                 active.forEach(function (actor) {
                     actor.acted = true;
-                    actor.motes = Math.min(actor.motes+5,actor.maxmotes);
                     output += ' ' + actor.name;
                     if (actor.maxmotes > 0) {
                         output += '('  + actor.motes + '/' + actor.maxmotes + ')';
@@ -985,15 +982,13 @@ try {
                 sendMessage(output);
                 back.push(function (un) {
                     if (un === 'undo') {
-                        active.forEach(function (actor, index) {
+                        active.forEach(function (actor) {
                             actor.acted = false;
-                            actor.motes = oldActors[index].motes;
                         });
                         sendMessage('Undoing next turn');
                     } else {
                         active.forEach(function (actor) {
                             actor.acted = true;
-                            actor.motes = Math.min(actor.motes+5,actor.maxmotes);
                         });
                         sendMessage('Redoing next turn');
                     }
@@ -1004,12 +999,15 @@ try {
                 Object.keys(tracker).forEach(function (actorId) {
                     var actor = tracker[actorId];
                     actor.acted = false;
+                    oldActors.push(JSON.parse(JSON.stringify(actor)));
+                    actor.motes = Math.min(actor.motes+5,actor.maxmotes);
                 });
                 list();
                 back.push(function (un) {
                     if (un === 'undo') {
-                        Object.keys(tracker).forEach(function (actorId) {
+                        Object.keys(tracker).forEach(function (actorId, index) {
                             var actor = tracker[actorId];
+                            actor.motes = oldActors[index].motes;
                             actor.acted = true;
                         });
                         sendMessage('Undoing New Turn');
@@ -1017,6 +1015,8 @@ try {
                         Object.keys(tracker).forEach(function (actorId) {
                             var actor = tracker[actorId];
                             actor.acted = false;
+                            oldActors.push(actor);
+                            actor.motes = Math.min(actor.motes+5,actor.maxmotes);
                         });
                         sendMessage('NEW TURN');
                         list();
