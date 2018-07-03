@@ -1,0 +1,23 @@
+{
+  "name": "discorddice",
+  "version": "1.0.0",
+  "description": "",
+  "main": "discorddice.js",
+  "dependencies": {
+    "discord.js": "^11.2.1"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gblosser42/discord-dice.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/gblosser42/discord-dice/issues"
+  },
+  "homepage": "https://github.com/gblosser42/discord-dice#readme"
+}
