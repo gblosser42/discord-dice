@@ -4,7 +4,7 @@
   "description": "",
   "main": "discorddice.js",
   "dependencies": {
-    "discord.js": "^11.2.1"
+    "discord.js": "^11.3.2"
   },
   "devDependencies": {},
   "scripts": {
