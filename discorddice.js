@@ -673,6 +673,7 @@ try {
                 success = true;
             }
         } else {
+            total += result;
             builder += result.toString();
         }
         while (dice > 0) {
