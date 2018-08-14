@@ -640,7 +640,7 @@ try {
         return builder + '\n' + '**SUCCESSES: ' + successes + '(' + sucDice + ')**';
     };
 
-    var oneRingDice = function (message) {
+    var oneRingDice = function (message, client) {
         var dice = message.match(/([0-9]+)r/);
         var shadow = message.match(/s/);
         var weary = message.match(/w/);
@@ -1317,7 +1317,7 @@ try {
                 } else if (msg[1].match(/^[0-9]+?l/)) {
                     result = newfiverDice(msg[1], mess.client);
                 } else if (msg[1].match(/^[0-9]+?r/)) {
-                    result = oneRingDice(msg[1]);
+                    result = oneRingDice(msg[1], mess.client);
                 } else if (msg[1].match(/^sw[bsadpcfBSADPCF]+?/)) {
                     result = starWarsDice(msg[1]);
                 } else if (msg[1] === 'fudge') {
