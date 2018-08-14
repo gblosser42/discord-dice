@@ -643,6 +643,7 @@ try {
     var oneRingDice = function (message) {
         var dice = message.match(/([0-9]+)r/);
         var shadow = message.match(/s/);
+        var weary = message.match(/w/);
         var auto = message.match(/(\+|-)([0-9]+)/);
         var result;
         var builder = '';
@@ -658,20 +659,22 @@ try {
         }
         result = Math.floor(Math.random() * 12);
         if (result === 0) {
-            builder += '';
+            builder += ':eye:';
             if (shadow) {
                 total += 12;
                 success = true;
             }
         } else if (result === 11) {
-            builder += '';
+            builder += ':gandalf:';
             if (!shadow) {
                 total += 12;
                 success = true;
             }
         } else {
             builder += result.toString();
-            total += result;
+            if (!(weary && result <= 3)) {
+                total += result;
+            }
         }
         while (dice > 0) {
             builder += ',';
