@@ -674,15 +674,14 @@ try {
             }
         } else {
             builder += result.toString();
-            if (!(weary && result <= 3)) {
-                total += result;
-            }
         }
         while (dice > 0) {
             builder += ',';
             result = Math.floor(Math.random() * 6) + 1;
 
-            total += result;
+            if (result > 3 || !weary) {
+                total += result;
+            }
             if (result <= 3) {
                 builder += '*' + result + '*';
             } else if (result === 6) {
@@ -896,7 +895,7 @@ try {
 
     var initiativeHandler = function (message, user, mess) {
         var username = mess.guild.member(user).nickname || user.username
-        var raw = message.substr(1);
+        var raw = message.substr(1).toLowerCase();
         var parts = raw.split(' ');
         var command = parts[0];
         var highest = -9999999;
@@ -924,18 +923,18 @@ try {
 
         if (parts[1]) {
             if (parts[1].toLowerCase() === 'me' || parts[1].toLowerCase() === 'my') {
-                parts[1] = username.replace(/ /g,'');
+                parts[1] = username.replace(/ /g,'').toLowerCase();
             }
         }
         if (parts[2]) {
             if (parts[2].toLowerCase() === 'me' || parts[2].toLowerCase() === 'my') {
-                parts[2] = username.replace(/ /g,'');
+                parts[2] = username.replace(/ /g,'').toLowerCase();
             }
         }
         var sendMessage = function (msg, opt) {
             mess.channel.send(msg, opt)
             .then(function(){})
-            .catch(console.error);;
+            .catch(console.error);
         };
         var decodeInitiative = function (str) {
             if (parseInt(str,10).toString() !== 'NaN') {
@@ -1187,7 +1186,7 @@ try {
             sendMessage(output);
         };
         try {
-            switch (command) {
+            switch (command.toLowerCase()) {
                 case 'reset':
                     reset();
                     break;
