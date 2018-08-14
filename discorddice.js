@@ -645,6 +645,8 @@ try {
         var shadow = message.match(/s/);
         var weary = message.match(/w/);
         var auto = message.match(/(\+|-)([0-9]+)/);
+        var eos = client.emojis.find('name','eos') || 'EYE';
+        var gandalf = client.emojis.find('name','gandalf') || 'GANDALF';
         var result;
         var builder = '';
         var total = 0;
@@ -659,13 +661,13 @@ try {
         }
         result = Math.floor(Math.random() * 12);
         if (result === 0) {
-            builder += ':eye:';
+            builder += eos;
             if (shadow) {
                 total += 12;
                 success = true;
             }
         } else if (result === 11) {
-            builder += ':gandalf:';
+            builder += gandalf;
             if (!shadow) {
                 total += 12;
                 success = true;
