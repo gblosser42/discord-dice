@@ -1037,6 +1037,8 @@ try {
                 initiative: parseInt(parts[2], 10) || 0,
                 motes: parseInt(parts[3], 10) || 0,
                 maxmotes: parseInt(parts[3], 10) || 0,
+                damage: 0,
+                flags: [],
                 acted: false
             };
             tracker[name] = actor;
@@ -1087,6 +1089,12 @@ try {
                 if (actor.maxmotes > 0) {
                     data += '('  + actor.motes + '/' + actor.maxmotes + ')';
                 }
+                if (actor.damage > 0) {
+                    data += ' damage:' + actor.damage;
+                }
+                if (actor.flags.length > 0) {
+                    data += ' ' + JSON.stringify(actor.flags);
+                }
                 if (isActive) {
                     data += '**';
                 } else if (actor.acted) {
@@ -1099,6 +1107,47 @@ try {
                 toPrint += val + '\n';
             });
             sendMessage('\n' + toPrint.replace(/\n$/, ''));
+        };
+        var addFlag = function () {
+            var name = parts[1];
+            var flag = parts[2].toLowerCase();
+            if (tracker[name].flags.indexOf(flag) === -1) {
+                tracker[name].flags.push(flag);
+                back.push(function (un) {
+                    if (un==='undo') {
+                        tracker[name].flags.pop();
+                        sendMessage('Removing flag ' + flag + ' from ' + name);
+                    } else {
+                        tracker[name].flags.push(flag);
+                        sendMessage('Re-adding flag ' + flag + ' to ' + name);
+                    }
+                });
+            }
+        };
+        var removeFlag = function () {
+            var name = parts[1];
+            var flag = parts[2].toLowerCase();
+            var index = tracker[name].flags.indexOf(flag);
+            if (index > -1) {
+                tracker[name].flags.splice(index,1);
+                back.push(function (un) {
+                    if (un==='undo') {
+                        tracker[name].flags.push(flag);
+                        sendMessage('Re-adding flag ' + flag + ' to ' + name);
+                    } else {
+                        index = tracker[name].flags.indexOf(flag);
+                        if (index > -1) {
+                            tracker[name].flags.splice(index, 1);
+                        }
+                        sendMessage('Removing flag ' + flag + ' from ' + name);
+                    }
+                });
+            }
+        };
+        var damage = function () {
+            parts[3] = parts[2];
+            parts[2] = 'damage';
+            modify();
         };
         var set = function () {
             var trait = parts[2].toLowerCase() === 'init' ? 'initiative' : parts[2].toLowerCase();
@@ -1211,6 +1260,15 @@ try {
                     break;
                 case 'withering':
                     withering();
+                    break;
+                case 'damage':
+                    damage();
+                    break;
+                case 'addflag':
+                    addFlag();
+                    break;
+                case 'removeFlag':
+                    removeFlag();
                     break;
                 case 'delete':
                 case 'remove':
