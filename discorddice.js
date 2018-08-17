@@ -981,6 +981,12 @@ try {
                     if (actor.maxmotes > 0) {
                         output += '('  + actor.motes + '/' + actor.maxmotes + ')';
                     }
+                    if (actor.damage > 0) {
+                        data += ' damage:' + actor.damage;
+                    }
+                    if (actor.flags.length > 0) {
+                        data += ' [' + actor.flags.join(',') + ']';
+                    }
                     output += ',';
                 });
                 output = output.replace(/,$/, '');
