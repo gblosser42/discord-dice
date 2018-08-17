@@ -982,10 +982,10 @@ try {
                         output += '('  + actor.motes + '/' + actor.maxmotes + ')';
                     }
                     if (actor.damage > 0) {
-                        data += ' damage:' + actor.damage;
+                        output += ' damage:' + actor.damage;
                     }
                     if (actor.flags.length > 0) {
-                        data += ' [' + actor.flags.join(',') + ']';
+                        output += ' [' + actor.flags.join(',') + ']';
                     }
                     output += ',';
                 });
