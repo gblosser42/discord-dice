@@ -1093,7 +1093,7 @@ try {
                     data += ' damage:' + actor.damage;
                 }
                 if (actor.flags.length > 0) {
-                    data += ' ' + JSON.stringify(actor.flags);
+                    data += ' [' + actor.flags.join(',') + ']';
                 }
                 if (isActive) {
                     data += '**';
@@ -1267,7 +1267,7 @@ try {
                 case 'addflag':
                     addFlag();
                     break;
-                case 'removeFlag':
+                case 'removeflag':
                     removeFlag();
                     break;
                 case 'delete':
