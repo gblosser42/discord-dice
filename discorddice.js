@@ -895,7 +895,7 @@ try {
     };
 
     var initiativeHandler = function (message, user, mess) {
-        var username = mess.guild.member(user).nickname || user.username
+        var username = mess.guild.member(user).nickname || user.username;
         var raw = message.substr(1).toLowerCase();
         var parts = raw.split(' ');
         var command = parts[0];
@@ -947,7 +947,7 @@ try {
         };
         var reset = function () {
             var oldTracker = JSON.parse(JSON.stringify(tracker));
-            tracker = {};
+            trackerMaster[channelId] = {};
             back.push(function (un) {
                 if (un==='undo') {
                     tracker = oldTracker;
