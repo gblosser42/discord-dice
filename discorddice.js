@@ -181,6 +181,62 @@ try {
         return builder + '\n' + '**SUCCESSES: ' + successes + '(' + sucDice + ')**';
     };
 
+    var dxDice = function (message) {
+        var dice = message.match(/([0-9]+)x/);
+        var critical = message.match(/x([0-9]+)/);
+        var auto = message.match(/(\+|-)([0-9]+)/);
+        var result;
+        var builder = '';
+        var total = 0;
+        var sucDice = 0;
+		var maxResult = 0;
+		var critDice = 0;		
+        if (dice) {
+            dice = parseInt(dice[1], 10);
+        } else {
+            dice = 0;
+        }
+        if (critical) {
+            critical = parseInt(critical[1], 10);
+        } else {
+            critical = 10;
+        }
+        if (auto) {
+            auto = parseInt(auto[0], 10);
+        } else {
+            auto = 0;
+        }
+        while (dice > 0) {
+            result = Math.floor(Math.random() * 10);
+            if (result === 0) {
+                result = 10;
+            }
+			if (result >= critical) {
+				builder += '**' + result + '**';
+				critDice++;
+				result = 10;
+			} else {
+				builder += result;
+			}
+			if (result > maxResult) {
+				maxResult = result;
+			}
+			if (dice > 0) {
+				builder += ',';
+			} else {
+				total += maxResult;
+				maxResult = 0;
+				if (critDice > 0) {
+					builder += '|';
+					dice = critDice;
+					critDice = 0;
+				}
+			}
+        }
+        total += auto;
+        return builder + '\n' + '**Total: ' + total + '**';
+    };
+
     var owodDice = function (message) {
         var dice = message.match(/([0-9]+)o/);
         var diff = message.match(/o([0-9]+)/);
@@ -1382,7 +1438,9 @@ try {
                     result = newfiverDice(msg[1], mess.client);
                 } else if (msg[1].match(/^[0-9]+?r/)) {
                     result = oneRingDice(msg[1], mess.client);
-                } else if (msg[1].match(/^sw[bsadpcfBSADPCF]+?/)) {
+                } else if (msg[1].match(/^[0-9]+?x/)) {
+                    result = dxDice(msg[1], mess.client);
+                 else if (msg[1].match(/^sw[bsadpcfBSADPCF]+?/)) {
                     result = starWarsDice(msg[1]);
                 } else if (msg[1] === 'fudge') {
                     result = fudgeDice();
