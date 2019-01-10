@@ -208,7 +208,6 @@ try {
         }
         while (dice > 0) {
             result = Math.floor(Math.random() * 10);
-			console.log(result, dice;);
             if (result === 0) {
                 result = 10;
             }
