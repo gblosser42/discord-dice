@@ -1440,7 +1440,7 @@ try {
                     result = oneRingDice(msg[1], mess.client);
                 } else if (msg[1].match(/^[0-9]+?x/)) {
                     result = dxDice(msg[1], mess.client);
-                 else if (msg[1].match(/^sw[bsadpcfBSADPCF]+?/)) {
+                } else if (msg[1].match(/^sw[bsadpcfBSADPCF]+?/)) {
                     result = starWarsDice(msg[1]);
                 } else if (msg[1] === 'fudge') {
                     result = fudgeDice();
