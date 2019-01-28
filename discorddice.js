@@ -1160,9 +1160,9 @@ try {
                 data += actor.initiative + ' ' + name;
                 if (actor.maxmotes > 0) {
                     if (actor.motes > -1) {
-						output += '('  + actor.motes + '/' + actor.maxmotes + ')';
+						data += '('  + actor.motes + '/' + actor.maxmotes + ')';
 					} else {
-						output += '(' + actor.maxmotes + ')';
+						data += '(' + actor.maxmotes + ')';
 					}
                 }
                 if (actor.damage > 0) {
