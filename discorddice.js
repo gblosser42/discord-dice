@@ -12,6 +12,7 @@ var outputMaster = {};
 var currentActorsMaster = {};
 var activeChannels = '';
 var boldOnes = '';
+var shadowChannels = '';
 var fateMasterDeck = [-4,-3,-2,-3,-2,-1,-2,-1,0,-3,-2,-1,-2,-1,0,-1,0,1,-2,-1,0,-1,0,1,0,1,2,-3,-2,-1,-2,-1,0,-1,0,1,-2,-1,0,-1,0,1,0,1,2,-1,0,1,0,1,2,1,2,3,-2,-1,0,-1,0,1,0,1,2,-1,0,1,0,1,2,1,2,3,0,1,2,1,2,3,2,3,4];
 var fateDeck = {};
 var latestSpeaker = {};
@@ -1036,7 +1037,11 @@ try {
                     actor.acted = true;
                     output += ' ' + actor.name;
                     if (actor.maxmotes > 0) {
-                        output += '('  + actor.motes + '/' + actor.maxmotes + ')';
+						if (actor.motes > -1) {
+							output += '('  + actor.motes + '/' + actor.maxmotes + ')';
+						} else {
+							output += '(' + actor.maxmotes + ')';
+						}
                     }
                     if (actor.damage > 0) {
                         output += ' damage:' + actor.damage;
@@ -1068,7 +1073,9 @@ try {
                     var actor = tracker[actorId];
                     actor.acted = false;
                     oldActors.push(JSON.parse(JSON.stringify(actor)));
-                    actor.motes = Math.min(actor.motes+5,actor.maxmotes);
+					if (actor.motes > -1) {
+						actor.motes = Math.min(actor.motes+5,actor.maxmotes);
+					}
                 });
                 list();
                 back.push(function (un) {
@@ -1084,7 +1091,9 @@ try {
                             var actor = tracker[actorId];
                             actor.acted = false;
                             oldActors.push(actor);
-                            actor.motes = Math.min(actor.motes+5,actor.maxmotes);
+							if (actor.motes > -1) {
+								actor.motes = Math.min(actor.motes+5,actor.maxmotes);
+							}
                         });
                         sendMessage('NEW TURN');
                         list();
@@ -1098,7 +1107,7 @@ try {
             var actor = {
                 name: name,
                 initiative: parseInt(parts[2], 10) || 0,
-                motes: parseInt(parts[3], 10) || 0,
+                motes: shadowChannels.indexOf(channelId) === -1 ? parseInt(parts[3], 10) : -1 || -1,
                 maxmotes: parseInt(parts[3], 10) || 0,
                 damage: 0,
                 flags: [],
@@ -1150,7 +1159,11 @@ try {
                 }
                 data += actor.initiative + ' ' + name;
                 if (actor.maxmotes > 0) {
-                    data += '('  + actor.motes + '/' + actor.maxmotes + ')';
+                    if (actor.motes > -1) {
+						output += '('  + actor.motes + '/' + actor.maxmotes + ')';
+					} else {
+						output += '(' + actor.maxmotes + ')';
+					}
                 }
                 if (actor.damage > 0) {
                     data += ' damage:' + actor.damage;
@@ -1213,7 +1226,12 @@ try {
             modify();
         };
         var set = function () {
-            var trait = parts[2].toLowerCase() === 'init' ? 'initiative' : parts[2].toLowerCase();
+			var trait = parts[2].toLowerCase();
+			if (trait === 'init') {
+				trait = 'initiative';
+			} else if (trait === 'shadow') {
+				trait = 'maxmotes';
+			}
             var oldValue = tracker[parts[1]][trait];
             var newValue = parseInt(parts[3], 10);
             var name = parts[1];
@@ -1229,7 +1247,12 @@ try {
             });
         };
         var modify = function () {
-            var trait = parts[2].toLowerCase() === 'init' ? 'initiative' : parts[2].toLowerCase();
+			var trait = parts[2].toLowerCase();
+			if (trait === 'init') {
+				trait = 'initiative';
+			} else if (trait === 'shadow') {
+				trait = 'maxmotes';
+			}
             var oldValue = tracker[parts[1]][trait];
             var newValue = oldValue + parseInt(parts[3], 10);
             var name = parts[1];
@@ -1374,18 +1397,26 @@ try {
         if (message === '!startDice') {
             if (activeChannels.indexOf(channelID) === -1) {
                 activeChannels+=channelID;
-                fs.writeFileSync('./config.json', JSON.stringify({discord:config, activeChannels:activeChannels}).replace(/\r?\n|\r/g,''));
+                fs.writeFileSync('./config.json', JSON.stringify({discord:config, activeChannels:activeChannels, shadow:shadowChannels}).replace(/\r?\n|\r/g,''));
             }
         } else if (message === '!stopDice') {
             activeChannels = activeChannels.replace(channelID,'');
-            fs.writeFileSync('./config.json', JSON.stringify({discord:config, activeChannels:activeChannels}).replace(/\r?\n|\r/g,''));
+            fs.writeFileSync('./config.json', JSON.stringify({discord:config, activeChannels:activeChannels, shadow:shadowChannels}).replace(/\r?\n|\r/g,''));
         } else if (message === '!boldOnes') {
             if (boldOnes === '') {
                 boldOnes = '***';
             } else {
                 boldOnes = '';
             }
-        } else if (message.toLowerCase() === '!startrp') {
+        } else if (message === '!shadow') {			
+            if (activeChannels.indexOf(channelID) === -1) {
+                shadowChannels+=channelID;
+                fs.writeFileSync('./config.json', JSON.stringify({discord:config, activeChannels:activeChannels, shadow:shadowChannels}).replace(/\r?\n|\r/g,''));
+            } else {
+				shadowChannels = shadowChannels.replace(channelID,'');
+				fs.writeFileSync('./config.json', JSON.stringify({discord:config, activeChannels:activeChannels, shadow:shadowChannels}).replace(/\r?\n|\r/g,''));
+			}
+		} else if (message.toLowerCase() === '!startrp') {
 			if (rpconfig[server] === undefined) {
 				rpconfig[server] = {};
 			}
@@ -1472,6 +1503,7 @@ try {
 
     config = require('./config.json').discord;
     activeChannels = require('./config.json').activeChannels || '';
+	shadowChannels = require('./config.json').shadowChannels || '';
 	rpconfig = require('./rp.json');
 	
 
