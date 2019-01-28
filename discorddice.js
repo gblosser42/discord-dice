@@ -1141,6 +1141,7 @@ try {
             }
         };
         var list = function () {
+			sendMessage(shadowChannels);
             var output = [],
                 toPrint = 'Initiative:\n';
             Object.keys(tracker).forEach(function (name) {
