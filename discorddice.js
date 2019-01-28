@@ -1141,7 +1141,6 @@ try {
             }
         };
         var list = function () {
-			sendMessage(shadowChannels);
             var output = [],
                 toPrint = 'Initiative:\n';
             Object.keys(tracker).forEach(function (name) {
@@ -1410,7 +1409,7 @@ try {
                 boldOnes = '';
             }
         } else if (message === '!shadow') {			
-            if (activeChannels.indexOf(channelID) === -1) {
+            if (shadowChannels.indexOf(channelID) === -1) {
                 shadowChannels+=channelID;
                 fs.writeFileSync('./config.json', JSON.stringify({discord:config, activeChannels:activeChannels, shadow:shadowChannels}).replace(/\r?\n|\r/g,''));
             } else {
