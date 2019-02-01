@@ -1416,6 +1416,10 @@ try {
 				shadowChannels = shadowChannels.replace(channelID,'');
 				fs.writeFileSync('./config.json', JSON.stringify({discord:config, activeChannels:activeChannels, shadow:shadowChannels}).replace(/\r?\n|\r/g,''));
 			}
+		} else if (message === '!config') {
+			mess.reply(activeChannels);
+			mess.reply(shadowChannels);
+			mess.reply(channelID);
 		} else if (message.toLowerCase() === '!startrp') {
 			if (rpconfig[server] === undefined) {
 				rpconfig[server] = {};
@@ -1503,7 +1507,7 @@ try {
 
     config = require('./config.json').discord;
     activeChannels = require('./config.json').activeChannels || '';
-	shadowChannels = require('./config.json').shadowChannels || '';
+	shadowChannels = require('./config.json').shadow || '';
 	rpconfig = require('./rp.json');
 	
 
