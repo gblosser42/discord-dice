@@ -1398,6 +1398,7 @@ try {
             if (activeChannels.indexOf(channelID) === -1) {
                 activeChannels+=channelID;
                 fs.writeFileSync('./config.json', JSON.stringify({discord:config, activeChannels:activeChannels, shadow:shadowChannels}).replace(/\r?\n|\r/g,''));
+				mess.reply(JSON.stringify({discord:config, activeChannels:activeChannels, shadow:shadowChannels}).replace(/\r?\n|\r/g,''));
             }
         } else if (message === '!stopDice') {
             activeChannels = activeChannels.replace(channelID,'');
