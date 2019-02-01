@@ -1397,7 +1397,7 @@ try {
         if (message === '!startDice') {
             if (activeChannels.indexOf(channelID) === -1) {
                 activeChannels+=channelID;
-                fs.writeFileSync('./config.json', JSON.stringify({discord:config, activeChannels:activeChannels, shadow:shadowChannels}).replace(/\r?\n|\r/g,''));
+                fs.writeFile('./config.json', JSON.stringify({discord:config, activeChannels:activeChannels, shadow:shadowChannels}).replace(/\r?\n|\r/g,''), function(err) {mess.reply(err)});
 				mess.reply(JSON.stringify({discord:config, activeChannels:activeChannels, shadow:shadowChannels}).replace(/\r?\n|\r/g,''));
             }
         } else if (message === '!stopDice') {
