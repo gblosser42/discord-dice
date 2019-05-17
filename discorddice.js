@@ -1043,6 +1043,9 @@ try {
 							output += '(' + actor.maxmotes + ')';
 						}
                     }
+					if (actor.willpower > 0) {
+						output += ' wp:' + actor.willpower;
+					}
                     if (actor.damage > 0) {
                         output += ' damage:' + actor.damage;
                     }
@@ -1111,6 +1114,7 @@ try {
                 maxmotes: parseInt(parts[3], 10) || 0,
                 damage: 0,
                 flags: [],
+				willpower: 0,
                 acted: false
             };
             tracker[name] = actor;
@@ -1165,6 +1169,9 @@ try {
 						data += '(' + actor.maxmotes + ')';
 					}
                 }
+				if (actor.willpower > 0) {
+					output += ' wp:' + actor.willpower;
+				}
                 if (actor.damage > 0) {
                     data += ' damage:' + actor.damage;
                 }
@@ -1231,6 +1238,12 @@ try {
 				trait = 'initiative';
 			} else if (trait === 'shadow') {
 				trait = 'maxmotes';
+			} else if (trait === 'vitae') {
+				trait = 'motes';
+			} else if (trait === 'maxvitae') {
+				trait = 'maxmotes';
+			} else if (trait === 'wp') {
+				trait = 'willpower';
 			}
             var oldValue = tracker[parts[1]][trait];
             var newValue = parseInt(parts[3], 10);
@@ -1239,10 +1252,10 @@ try {
             back.push(function (un) {
                 if (un==='undo') {
                     tracker[name][trait] = oldValue;
-                    sendMessage('Reset ' + name + '\'s ' + trait + ' to ' + oldValue);
+                    sendMessage('Reset ' + name + '\'s ' + parts[2].toLowerCase() + ' to ' + oldValue);
                 } else {
                     tracker[name][trait] = newValue;
-                    sendMessage('Re-set ' + name + '\'s ' + trait + ' to ' + newValue);
+                    sendMessage('Re-set ' + name + '\'s ' + parts[2].toLowerCase() + ' to ' + newValue);
                 }
             });
         };
@@ -1252,6 +1265,12 @@ try {
 				trait = 'initiative';
 			} else if (trait === 'shadow') {
 				trait = 'maxmotes';
+			} else if (trait === 'vitae') {
+				trait = 'motes';
+			} else if (trait === 'maxvitae') {
+				trait = 'maxmotes';
+			} else if (trait === 'wp') {
+				trait = 'willpower';
 			}
             var oldValue = tracker[parts[1]][trait];
             var newValue = oldValue + parseInt(parts[3], 10);
@@ -1260,10 +1279,10 @@ try {
             back.push(function (un) {
                 if (un==='undo') {
                     tracker[name][trait] = oldValue;
-                    sendMessage('Reset ' + name + '\'s ' + trait + ' to ' + oldValue);
+                    sendMessage('Reset ' + name + '\'s ' + parts[2].toLowerCase() + ' to ' + oldValue);
                 } else {
                     tracker[name][trait] = newValue;
-                    sendMessage('Re-set ' + name + '\'s ' + trait + ' to ' + newValue);
+                    sendMessage('Re-set ' + name + '\'s ' + parts[2].toLowerCase() + ' to ' + newValue);
                 }
             });
         };
@@ -1375,10 +1394,15 @@ try {
                 case 'default':
                     sendMessage('Not Recognized Command');
             }
+			saveInit();
         } catch (e) {
             sendMessage('INPUT ERROR');
         }
     };
+
+	var saveInit = function () {
+		fs.writeFileSync('./init.json', JSON.stringify(trackerMaster));
+	};
 
     var mainProcess = function () {
 
@@ -1511,6 +1535,7 @@ try {
     activeChannels = require('./config.json').activeChannels || '';
 	shadowChannels = require('./config.json').shadow || '';
 	rpconfig = require('./rp.json');
+	trackerMaster = require('./init.json') || {};
 	
 
     if (config.token === 'YOUR TOKEN') {
