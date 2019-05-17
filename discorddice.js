@@ -1538,21 +1538,19 @@ try {
 			if (macroName) {
 				macroName = macroName[1];
 			}
-			mess.reply(JSON.stringify(macroModifier));
 			if (macroModifier) {
 				macroModifier = parseInt(macroModifier[1]);
 			} else {
 				macroModifier = 0;
 			}
-			mess.reply(JSON.stringify(macroModifier));
 			if (macros[server] && macros[server][user] && macros[server][user][macroName]) {
 				var macro = macros[server][user][macroName];
 				var numDice = macro.match(/([0-9]+)[a-z]/);
-				mess.reply(JSON.stringify(macroModifier));
+				mess.reply(JSON.stringify(numDice));
 				if (numDice) {
 					macro = macro.replace(numDice, Math.max(parseInt(numDice) + macroModifier, 1));
 				}
-				mess.reply(JSON.stringify(macroModifier));
+				mess.reply(JSON.stringify(macro));
 				result = diceChecker(macro, mess.client);
 				mess.reply(result);
 			}
