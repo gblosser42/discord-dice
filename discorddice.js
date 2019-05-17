@@ -1520,7 +1520,7 @@ try {
 				macros[server][user] = {};
 			}
 			var macroParts = message.toLowerCase().split(' ');
-			if (macroParts.match(/[a-zA-Z]+/)) {
+			if (macroParts[1].match(/[a-zA-Z]+/)) {
 				macros[server][user][macroParts[1]] = macroParts[2];
 				fs.writeFileSync('./macros.json', JSON.stringify(macros));
 			} else {
