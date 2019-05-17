@@ -1546,11 +1546,10 @@ try {
 			if (macros[server] && macros[server][user] && macros[server][user][macroName]) {
 				var macro = macros[server][user][macroName];
 				var numDice = macro.match(/([0-9]+)[a-z]/);
-				mess.reply(JSON.stringify(numDice));
 				if (numDice) {
+					numDice = numDice[1];
 					macro = macro.replace(numDice, Math.max(parseInt(numDice) + macroModifier, 1));
 				}
-				mess.reply(JSON.stringify(macro));
 				result = diceChecker(macro, mess.client);
 				mess.reply(result);
 			}
