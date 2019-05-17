@@ -6,6 +6,7 @@ var mybot;
 var config;
 var trackerMaster = {};
 var rpconfig = {};
+var macros = {};
 var backMaster = {};
 var forwardMaster = {};
 var outputMaster = {};
@@ -1474,6 +1475,7 @@ try {
 		} else if (message === '!config') {
 			mess.reply(activeChannels);
 			mess.reply(shadowChannels);
+			mess.replay(regen);
 			mess.reply(channelID);
 		} else if (message.toLowerCase() === '!startrp') {
 			if (rpconfig[server] === undefined) {
@@ -1510,47 +1512,93 @@ try {
 			}
 		} else if (message === '!clearlatest') {
 			latestSpeaker[server] = '';
+		} else if (message.toLowerCase().indexOf('!define ') === 0) {
+			if (macros[server] === undefined) {
+				macros[server] = {};
+			}
+			if (macros[server][user] === undefined) {
+				macros[server][user] = {};
+			}
+			var macroParts = message.toLowerCase().split(' ');
+			if (macroParts.match(/[a-zA-Z]+/)) {
+				macros[server][user][macroParts[1]] = macroParts[2];
+				fs.writeFileSync('./macros.json', JSON.stringify(macros));
+			} else {
+				mess.reply('ERROR: Name must be letters only');
+			}
+		} else if(message === '!macros') {
+			var userMacros = {};
+			if (macros[server] && macros[server][user]) {
+				userMacros = macros[server][user];
+			}
+			mess.reply('Current Macros: ' + JSON.stringify(userMacros,null,4));
+		} else if (message.indexOf('$') === 0) {
+			var macroName = message.match(/\$([a-zA-Z]+)/);
+			var macroModifier = message.match(/([\-\+][0-9]+)/);
+			if (macroName) {
+				macroName = macroName[1];
+			}
+			if (macroModifier) {
+				macroModifier = parseInt(macroModifier[1]);
+			} else {
+				macroModifier = 0;
+			}
+			if (macros[server] && macros[server][user] && macros[server][user][macroName]) {
+				var macro = macros[server][user][macroName];
+				var numDice = macro.match(/([0-9]+)[a-z]/);
+				if (numDice) {
+					macro = macro.replace(numDice, Math.max(parseInt(numDice) + macroModifier, 1));
+				}
+				result = diceChecker(macro, mess.client);
+				mess.reply(result);
+			}
 		} else if (activeChannels.indexOf(channelID) > -1) {
             if (msg) {
                 log(msg[1]);
-                if (msg[1].match(/^[0-9]+?e/)) {
-                    result = exaltedDice(msg[1])
-                } else if (msg[1].match(/^[0-9]+?w/)) {
-                    result = wodDice(msg[1]);
-                } else if (msg[1].match(/^[0-9]+?o/)) {
-                    result = owodDice(msg[1]);
-                } else if (msg[1].match(/^[0-9]+?d/)) {
-                    result = baseDice(msg[1]);
-                } else if (msg[1].match(/^[0-9]+?s/)) {
-                    result = shadowrunDice(msg[1]);
-                } else if (msg[1].match(/^[0-9]+?k/)) {
-                    result = l5rDice(msg[1]);
-                } else if (msg[1].match(/^[0-9]+?l/)) {
-                    result = newfiverDice(msg[1], mess.client);
-                } else if (msg[1].match(/^[0-9]+?r/)) {
-                    result = oneRingDice(msg[1], mess.client);
-                } else if (msg[1].match(/^[0-9]+?x/)) {
-                    result = dxDice(msg[1], mess.client);
-                } else if (msg[1].match(/^sw[bsadpcfBSADPCF]+?/)) {
-                    result = starWarsDice(msg[1]);
-                } else if (msg[1] === 'fudge') {
-                    result = fudgeDice();
-                } else if (msg[1].match(/^stress+?/)) {
-                    result = stressDice(msg[1]);
-                } else if (msg[1].match(/^make[Bb]ooks/)) {
-                    result = makeBooks(msg[1]);
-                } else if (msg[1].match(/^dowsing/)) {
-                    result = dowsing(msg[1]);
-                }
+                result = diceChecker(msg[1], mess.client);
                 if (result) {
                     mess.reply(result);
                     }
                 } else if (message.match(/^!/)) {
-                initiativeHandler(message, user, mess);
+                	initiativeHandler(message, user, mess);
                 }
             }
         });
     };
+	
+	var diceChecker = function (msg, client) {
+		var result;
+		if (msg.match(/^[0-9]+?e/)) {
+			result = exaltedDice(msg)
+		} else if (msg.match(/^[0-9]+?w/)) {
+			result = wodDice(msg);
+		} else if (msg.match(/^[0-9]+?o/)) {
+			result = owodDice(msg);
+		} else if (msg.match(/^[0-9]+?d/)) {
+			result = baseDice(msg);
+		} else if (msg.match(/^[0-9]+?s/)) {
+			result = shadowrunDice(msg);
+		} else if (msg.match(/^[0-9]+?k/)) {
+			result = l5rDice(msg);
+		} else if (msg.match(/^[0-9]+?l/)) {
+			result = newfiverDice(msg, client);
+		} else if (msg.match(/^[0-9]+?r/)) {
+			result = oneRingDice(msg, client);
+		} else if (msg.match(/^[0-9]+?x/)) {
+			result = dxDice(msg, client);
+		} else if (msg.match(/^sw[bsadpcfBSADPCF]+?/)) {
+			result = starWarsDice(msg);
+		} else if (msg === 'fudge') {
+			result = fudgeDice();
+		} else if (msg.match(/^stress+?/)) {
+			result = stressDice(msg);
+		} else if (msg.match(/^make[Bb]ooks/)) {
+			result = makeBooks(msg);
+		} else if (msg.match(/^dowsing/)) {
+			result = dowsing(msg);
+		}
+		return result;
+	};
 
     if (!fs.existsSync('./config.json')) {
         fs.writeFileSync('./config.json', JSON.stringify({discord:{token:'YOUR TOKEN'}}).replace(/\r?\n|\r/g,''));
@@ -1565,7 +1613,8 @@ try {
     activeChannels = configFile.activeChannels || '';
 	shadowChannels = configFile.shadow || '';
 	regen = configFile.regen || '';
-	rpconfig = require('./rp.json');
+	rpconfig = require('./rp.json') || {};
+	macros = require('./macros.json') || {};
 	trackerMaster = require('./init.json') || {};
 	
 
