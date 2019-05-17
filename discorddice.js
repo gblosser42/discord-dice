@@ -12,6 +12,7 @@ var outputMaster = {};
 var currentActorsMaster = {};
 var activeChannels = '';
 var boldOnes = '';
+var regen = '';
 var shadowChannels = '';
 var fateMasterDeck = [-4,-3,-2,-3,-2,-1,-2,-1,0,-3,-2,-1,-2,-1,0,-1,0,1,-2,-1,0,-1,0,1,0,1,2,-3,-2,-1,-2,-1,0,-1,0,1,-2,-1,0,-1,0,1,0,1,2,-1,0,1,0,1,2,1,2,3,-2,-1,0,-1,0,1,0,1,2,-1,0,1,0,1,2,1,2,3,0,1,2,1,2,3,2,3,4];
 var fateDeck = {};
@@ -1424,13 +1425,13 @@ try {
         if (message === '!startDice') {
             if (activeChannels.indexOf(channelID) === -1) {
                 activeChannels+=channelID;
-                fs.writeFileSync('./config.json', JSON.stringify({discord:config, activeChannels:activeChannels, shadow:shadowChannels}).replace(/\r?\n|\r/g,''));
+                fs.writeFileSync('./config.json', JSON.stringify({discord:config, activeChannels:activeChannels, shadow:shadowChannels, regen:regen}).replace(/\r?\n|\r/g,''));
             } else {
 				mess.reply('Dice already started');
 			}
         } else if (message === '!stopDice') {
             activeChannels = activeChannels.replace(channelID,'');
-            fs.writeFileSync('./config.json', JSON.stringify({discord:config, activeChannels:activeChannels, shadow:shadowChannels}).replace(/\r?\n|\r/g,''));
+            fs.writeFileSync('./config.json', JSON.stringify({discord:config, activeChannels:activeChannels, shadow:shadowChannels, regen:regen}).replace(/\r?\n|\r/g,''));
         } else if (message === '!boldOnes') {
             if (boldOnes === '') {
                 boldOnes = '***';
@@ -1440,10 +1441,18 @@ try {
         } else if (message === '!shadow') {			
             if (shadowChannels.indexOf(channelID) === -1) {
                 shadowChannels+=channelID;
-                fs.writeFileSync('./config.json', JSON.stringify({discord:config, activeChannels:activeChannels, shadow:shadowChannels}).replace(/\r?\n|\r/g,''));
+                fs.writeFileSync('./config.json', JSON.stringify({discord:config, activeChannels:activeChannels, shadow:shadowChannels, regen:regen}).replace(/\r?\n|\r/g,''));
             } else {
 				shadowChannels = shadowChannels.replace(channelID,'');
-				fs.writeFileSync('./config.json', JSON.stringify({discord:config, activeChannels:activeChannels, shadow:shadowChannels}).replace(/\r?\n|\r/g,''));
+				fs.writeFileSync('./config.json', JSON.stringify({discord:config, activeChannels:activeChannels, shadow:shadowChannels, regen:regen}).replace(/\r?\n|\r/g,''));
+			}
+		} else if (message === '!regen') {
+			if (regen.indexOf(channelID) === -1) {
+				regen+=channelID;
+				fs.writeFileSync('./config.json', JSON.stringify({discord:config, activeChannels:activeChannels, shadow:shadowChannels, regen:regen}).replace(/\r?\n|\r/g,''));
+			} else {
+				regen = regen.replace(channelID,'');
+				fs.writeFileSync('./config.json', JSON.stringify({discord:config, activeChannels:activeChannels, shadow:shadowChannels, regen:regen}).replace(/\r?\n|\r/g,''));
 			}
 		} else if (message === '!config') {
 			mess.reply(activeChannels);
@@ -1534,9 +1543,11 @@ try {
 		fs.writeFileSync('./rp.json', '{}');
 	}
 
-    config = require('./config.json').discord;
-    activeChannels = require('./config.json').activeChannels || '';
-	shadowChannels = require('./config.json').shadow || '';
+	var configFile = require('./config.json');
+    config = configFile.discord;
+    activeChannels = configFile.activeChannels || '';
+	shadowChannels = configFile.shadow || '';
+	regen = configFile.regen || '';
 	rpconfig = require('./rp.json');
 	trackerMaster = require('./init.json') || {};
 	
