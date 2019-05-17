@@ -202,6 +202,9 @@ try {
         } else {
             critical = 10;
         }
+	if (critical < 2) {
+	    critical = 10;
+        }
         if (auto) {
             auto = parseInt(auto[0], 10);
         } else {
@@ -1170,7 +1173,7 @@ try {
 					}
                 }
 				if (actor.willpower > 0) {
-					output += ' wp:' + actor.willpower;
+					data += ' wp:' + actor.willpower;
 				}
                 if (actor.damage > 0) {
                     data += ' damage:' + actor.damage;
