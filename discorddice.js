@@ -1080,7 +1080,7 @@ try {
                     var actor = tracker[actorId];
                     actor.acted = false;
                     oldActors.push(JSON.parse(JSON.stringify(actor)));
-					if (actor.motes > -1) {
+					if (actor.motes > -1 && regen.indexOf(channelId) > -1) {
 						actor.motes = Math.min(actor.motes+5,actor.maxmotes);
 					}
                 });
