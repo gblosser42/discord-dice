@@ -1337,7 +1337,24 @@ try {
         };
         var check = function () {
             var name = parts[1];
-            var output = tracker[name].initiative + ' ' + name + '('  + tracker[name].motes + '/' + tracker[name].maxmotes + ')';
+			var actor = tracker[name];
+            var output = actor.initiative + ' ' + name;
+			if (actor.maxmotes > 0) {
+				if (actor.motes > -1) {
+					output += '('  + actor.motes + '/' + actor.maxmotes + ')';
+				} else {
+					output += '(' + actor.maxmotes + ')';
+				}
+			}
+			if (actor.willpower > 0) {
+				output += ' wp:' + actor.willpower;
+			}
+			if (actor.damage > 0) {
+				output += ' damage:' + actor.damage;
+			}
+			if (actor.flags.length > 0) {
+				output += ' [' + actor.flags.join(',') + ']';
+			}
             sendMessage(output);
         };
         var help = function () {
