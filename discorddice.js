@@ -999,8 +999,8 @@ try {
 			Object.keys(tracker).forEach(function (actor) {
 				actor = tracker[actor];
 				initiativeHandler(message.replace(/all/g,actor.name),user,mess);
-				return;
 			});
+			return;
 		}
         var sendMessage = function (msg, opt) {
             mess.channel.send(msg, opt)
