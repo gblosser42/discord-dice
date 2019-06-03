@@ -999,6 +999,7 @@ try {
 			Object.keys(tracker).forEach(function (actor) {
 				actor = tracker[actor];
 				initiativeHandler(message.replace(/all/g,actor.name),user,mess);
+				return;
 			});
 		}
         var sendMessage = function (msg, opt) {
