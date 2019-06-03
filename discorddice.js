@@ -995,6 +995,12 @@ try {
                 parts[2] = username.replace(/ /g,'').toLowerCase();
             }
         }
+		if ((parts[1] && parts[1].toLowerCase() === 'all') || (parts[2] && parts[2].toLowerCase() === 'all')) {
+			Object.keys(tracker).forEach(function (actor) {
+				actor = tracker[actor];
+				initiativeHandler(message.replace(/all/g,actor.name),user,mess);
+			});
+		}
         var sendMessage = function (msg, opt) {
             mess.channel.send(msg, opt)
             .then(function(){})
