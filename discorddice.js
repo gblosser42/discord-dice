@@ -1560,7 +1560,7 @@ try {
 				result = diceChecker(macro, mess.client);
 				mess.reply(result);
 			}
-		} else if (activeChannels.indexOf(channelID) > -1) {
+		} else {
             if (msg) {
                 log(msg[1]);
                 result = diceChecker(msg[1], mess.client);
