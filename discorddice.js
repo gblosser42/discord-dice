@@ -6,12 +6,14 @@ var mybot;
 var config;
 var trackerMaster = {};
 var rpconfig = {};
+var macros = {};
 var backMaster = {};
 var forwardMaster = {};
 var outputMaster = {};
 var currentActorsMaster = {};
 var activeChannels = '';
 var boldOnes = '';
+var regen = '';
 var shadowChannels = '';
 var fateMasterDeck = [-4,-3,-2,-3,-2,-1,-2,-1,0,-3,-2,-1,-2,-1,0,-1,0,1,-2,-1,0,-1,0,1,0,1,2,-3,-2,-1,-2,-1,0,-1,0,1,-2,-1,0,-1,0,1,0,1,2,-1,0,1,0,1,2,1,2,3,-2,-1,0,-1,0,1,0,1,2,-1,0,1,0,1,2,1,2,3,0,1,2,1,2,3,2,3,4];
 var fateDeck = {};
@@ -201,6 +203,9 @@ try {
             critical = parseInt(critical[1], 10);
         } else {
             critical = 10;
+        }
+	if (critical < 2) {
+	    critical = 10;
         }
         if (auto) {
             auto = parseInt(auto[0], 10);
@@ -989,6 +994,13 @@ try {
                 parts[2] = username.replace(/ /g,'').toLowerCase();
             }
         }
+		if ((parts[1] && parts[1].toLowerCase() === 'all') || (parts[2] && parts[2].toLowerCase() === 'all')) {
+			Object.keys(tracker).forEach(function (actor) {
+				actor = tracker[actor];
+				initiativeHandler(message.replace(/all/g,actor.name),user,mess);
+			});
+			return;
+		}
         var sendMessage = function (msg, opt) {
             mess.channel.send(msg, opt)
             .then(function(){})
@@ -1042,6 +1054,9 @@ try {
 							output += '(' + actor.maxmotes + ')';
 						}
                     }
+					if (actor.willpower > 0) {
+						output += ' wp:' + actor.willpower;
+					}
                     if (actor.damage > 0) {
                         output += ' damage:' + actor.damage;
                     }
@@ -1072,7 +1087,7 @@ try {
                     var actor = tracker[actorId];
                     actor.acted = false;
                     oldActors.push(JSON.parse(JSON.stringify(actor)));
-					if (actor.motes > -1) {
+					if (actor.motes > -1 && regen.indexOf(channelId) > -1) {
 						actor.motes = Math.min(actor.motes+5,actor.maxmotes);
 					}
                 });
@@ -1110,6 +1125,7 @@ try {
                 maxmotes: parseInt(parts[3], 10) || 0,
                 damage: 0,
                 flags: [],
+				willpower: 0,
                 acted: false
             };
             tracker[name] = actor;
@@ -1164,6 +1180,9 @@ try {
 						data += '(' + actor.maxmotes + ')';
 					}
                 }
+				if (actor.willpower > 0) {
+					data += ' wp:' + actor.willpower;
+				}
                 if (actor.damage > 0) {
                     data += ' damage:' + actor.damage;
                 }
@@ -1230,6 +1249,12 @@ try {
 				trait = 'initiative';
 			} else if (trait === 'shadow') {
 				trait = 'maxmotes';
+			} else if (trait === 'vitae') {
+				trait = 'motes';
+			} else if (trait === 'maxvitae') {
+				trait = 'maxmotes';
+			} else if (trait === 'wp') {
+				trait = 'willpower';
 			}
             var oldValue = tracker[parts[1]][trait];
             var newValue = parseInt(parts[3], 10);
@@ -1238,10 +1263,10 @@ try {
             back.push(function (un) {
                 if (un==='undo') {
                     tracker[name][trait] = oldValue;
-                    sendMessage('Reset ' + name + '\'s ' + trait + ' to ' + oldValue);
+                    sendMessage('Reset ' + name + '\'s ' + parts[2].toLowerCase() + ' to ' + oldValue);
                 } else {
                     tracker[name][trait] = newValue;
-                    sendMessage('Re-set ' + name + '\'s ' + trait + ' to ' + newValue);
+                    sendMessage('Re-set ' + name + '\'s ' + parts[2].toLowerCase() + ' to ' + newValue);
                 }
             });
         };
@@ -1251,6 +1276,12 @@ try {
 				trait = 'initiative';
 			} else if (trait === 'shadow') {
 				trait = 'maxmotes';
+			} else if (trait === 'vitae') {
+				trait = 'motes';
+			} else if (trait === 'maxvitae') {
+				trait = 'maxmotes';
+			} else if (trait === 'wp') {
+				trait = 'willpower';
 			}
             var oldValue = tracker[parts[1]][trait];
             var newValue = oldValue + parseInt(parts[3], 10);
@@ -1259,10 +1290,10 @@ try {
             back.push(function (un) {
                 if (un==='undo') {
                     tracker[name][trait] = oldValue;
-                    sendMessage('Reset ' + name + '\'s ' + trait + ' to ' + oldValue);
+                    sendMessage('Reset ' + name + '\'s ' + parts[2].toLowerCase() + ' to ' + oldValue);
                 } else {
                     tracker[name][trait] = newValue;
-                    sendMessage('Re-set ' + name + '\'s ' + trait + ' to ' + newValue);
+                    sendMessage('Re-set ' + name + '\'s ' + parts[2].toLowerCase() + ' to ' + newValue);
                 }
             });
         };
@@ -1313,7 +1344,24 @@ try {
         };
         var check = function () {
             var name = parts[1];
-            var output = tracker[name].initiative + ' ' + name + '('  + tracker[name].motes + '/' + tracker[name].maxmotes + ')';
+			var actor = tracker[name];
+            var output = actor.initiative + ' ' + name;
+			if (actor.maxmotes > 0) {
+				if (actor.motes > -1) {
+					output += '('  + actor.motes + '/' + actor.maxmotes + ')';
+				} else {
+					output += '(' + actor.maxmotes + ')';
+				}
+			}
+			if (actor.willpower > 0) {
+				output += ' wp:' + actor.willpower;
+			}
+			if (actor.damage > 0) {
+				output += ' damage:' + actor.damage;
+			}
+			if (actor.flags.length > 0) {
+				output += ' [' + actor.flags.join(',') + ']';
+			}
             sendMessage(output);
         };
         var help = function () {
@@ -1374,10 +1422,15 @@ try {
                 case 'default':
                     sendMessage('Not Recognized Command');
             }
+			saveInit();
         } catch (e) {
             sendMessage('INPUT ERROR');
         }
     };
+
+	var saveInit = function () {
+		fs.writeFileSync('./init.json', JSON.stringify(trackerMaster));
+	};
 
     var mainProcess = function () {
 
@@ -1396,11 +1449,13 @@ try {
         if (message === '!startDice') {
             if (activeChannels.indexOf(channelID) === -1) {
                 activeChannels+=channelID;
-                fs.writeFileSync('./config.json', JSON.stringify({discord:config, activeChannels:activeChannels, shadow:shadowChannels}).replace(/\r?\n|\r/g,''));
-            }
+                fs.writeFileSync('./config.json', JSON.stringify({discord:config, activeChannels:activeChannels, shadow:shadowChannels, regen:regen}).replace(/\r?\n|\r/g,''));
+            } else {
+				mess.reply('Dice already started');
+			}
         } else if (message === '!stopDice') {
             activeChannels = activeChannels.replace(channelID,'');
-            fs.writeFileSync('./config.json', JSON.stringify({discord:config, activeChannels:activeChannels, shadow:shadowChannels}).replace(/\r?\n|\r/g,''));
+            fs.writeFileSync('./config.json', JSON.stringify({discord:config, activeChannels:activeChannels, shadow:shadowChannels, regen:regen}).replace(/\r?\n|\r/g,''));
         } else if (message === '!boldOnes') {
             if (boldOnes === '') {
                 boldOnes = '***';
@@ -1410,11 +1465,24 @@ try {
         } else if (message === '!shadow') {			
             if (shadowChannels.indexOf(channelID) === -1) {
                 shadowChannels+=channelID;
-                fs.writeFileSync('./config.json', JSON.stringify({discord:config, activeChannels:activeChannels, shadow:shadowChannels}).replace(/\r?\n|\r/g,''));
+                fs.writeFileSync('./config.json', JSON.stringify({discord:config, activeChannels:activeChannels, shadow:shadowChannels, regen:regen}).replace(/\r?\n|\r/g,''));
             } else {
 				shadowChannels = shadowChannels.replace(channelID,'');
-				fs.writeFileSync('./config.json', JSON.stringify({discord:config, activeChannels:activeChannels, shadow:shadowChannels}).replace(/\r?\n|\r/g,''));
+				fs.writeFileSync('./config.json', JSON.stringify({discord:config, activeChannels:activeChannels, shadow:shadowChannels, regen:regen}).replace(/\r?\n|\r/g,''));
 			}
+		} else if (message === '!regen') {
+			if (regen.indexOf(channelID) === -1) {
+				regen+=channelID;
+				fs.writeFileSync('./config.json', JSON.stringify({discord:config, activeChannels:activeChannels, shadow:shadowChannels, regen:regen}).replace(/\r?\n|\r/g,''));
+			} else {
+				regen = regen.replace(channelID,'');
+				fs.writeFileSync('./config.json', JSON.stringify({discord:config, activeChannels:activeChannels, shadow:shadowChannels, regen:regen}).replace(/\r?\n|\r/g,''));
+			}
+		} else if (message === '!config') {
+			mess.reply(activeChannels);
+			mess.reply(shadowChannels);
+			mess.replay(regen);
+			mess.reply(channelID);
 		} else if (message.toLowerCase() === '!startrp') {
 			if (rpconfig[server] === undefined) {
 				rpconfig[server] = {};
@@ -1450,47 +1518,94 @@ try {
 			}
 		} else if (message === '!clearlatest') {
 			latestSpeaker[server] = '';
-		} else if (activeChannels.indexOf(channelID) > -1) {
+		} else if (message.toLowerCase().indexOf('!define ') === 0) {
+			if (macros[server] === undefined) {
+				macros[server] = {};
+			}
+			if (macros[server][user] === undefined) {
+				macros[server][user] = {};
+			}
+			var macroParts = message.toLowerCase().split(' ');
+			if (macroParts[1].match(/[a-zA-Z]+/)) {
+				macros[server][user][macroParts[1]] = macroParts[2];
+				fs.writeFileSync('./macros.json', JSON.stringify(macros));
+			} else {
+				mess.reply('ERROR: Name must be letters only');
+			}
+		} else if(message === '!macros') {
+			var userMacros = {};
+			if (macros[server] && macros[server][user]) {
+				userMacros = macros[server][user];
+			}
+			mess.reply('Current Macros: ' + JSON.stringify(userMacros,null,4));
+		} else if (message.indexOf('$') === 0) {
+			var macroName = message.match(/\$([a-zA-Z]+)/);
+			var macroModifier = message.match(/([\-\+][0-9]+)/);
+			if (macroName) {
+				macroName = macroName[1];
+			}
+			if (macroModifier) {
+				macroModifier = parseInt(macroModifier[1]);
+			} else {
+				macroModifier = 0;
+			}
+			if (macros[server] && macros[server][user] && macros[server][user][macroName]) {
+				var macro = macros[server][user][macroName];
+				var numDice = macro.match(/([0-9]+)[a-z]/);
+				if (numDice) {
+					numDice = numDice[1];
+					macro = macro.replace(numDice, Math.max(parseInt(numDice) + macroModifier, 1));
+				}
+				result = diceChecker(macro, mess.client);
+				mess.reply(result);
+			}
+		} else {
             if (msg) {
                 log(msg[1]);
-                if (msg[1].match(/^[0-9]+?e/)) {
-                    result = exaltedDice(msg[1])
-                } else if (msg[1].match(/^[0-9]+?w/)) {
-                    result = wodDice(msg[1]);
-                } else if (msg[1].match(/^[0-9]+?o/)) {
-                    result = owodDice(msg[1]);
-                } else if (msg[1].match(/^[0-9]+?d/)) {
-                    result = baseDice(msg[1]);
-                } else if (msg[1].match(/^[0-9]+?s/)) {
-                    result = shadowrunDice(msg[1]);
-                } else if (msg[1].match(/^[0-9]+?k/)) {
-                    result = l5rDice(msg[1]);
-                } else if (msg[1].match(/^[0-9]+?l/)) {
-                    result = newfiverDice(msg[1], mess.client);
-                } else if (msg[1].match(/^[0-9]+?r/)) {
-                    result = oneRingDice(msg[1], mess.client);
-                } else if (msg[1].match(/^[0-9]+?x/)) {
-                    result = dxDice(msg[1], mess.client);
-                } else if (msg[1].match(/^sw[bsadpcfBSADPCF]+?/)) {
-                    result = starWarsDice(msg[1]);
-                } else if (msg[1] === 'fudge') {
-                    result = fudgeDice();
-                } else if (msg[1].match(/^stress+?/)) {
-                    result = stressDice(msg[1]);
-                } else if (msg[1].match(/^make[Bb]ooks/)) {
-                    result = makeBooks(msg[1]);
-                } else if (msg[1].match(/^dowsing/)) {
-                    result = dowsing(msg[1]);
-                }
+                result = diceChecker(msg[1], mess.client);
                 if (result) {
                     mess.reply(result);
                     }
                 } else if (message.match(/^!/)) {
-                initiativeHandler(message, user, mess);
+                	initiativeHandler(message, user, mess);
                 }
             }
         });
     };
+	
+	var diceChecker = function (msg, client) {
+		var result;
+		if (msg.match(/^[0-9]+?e/)) {
+			result = exaltedDice(msg)
+		} else if (msg.match(/^[0-9]+?w/)) {
+			result = wodDice(msg);
+		} else if (msg.match(/^[0-9]+?o/)) {
+			result = owodDice(msg);
+		} else if (msg.match(/^[0-9]+?d/)) {
+			result = baseDice(msg);
+		} else if (msg.match(/^[0-9]+?s/)) {
+			result = shadowrunDice(msg);
+		} else if (msg.match(/^[0-9]+?k/)) {
+			result = l5rDice(msg);
+		} else if (msg.match(/^[0-9]+?l/)) {
+			result = newfiverDice(msg, client);
+		} else if (msg.match(/^[0-9]+?r/)) {
+			result = oneRingDice(msg, client);
+		} else if (msg.match(/^[0-9]+?x/)) {
+			result = dxDice(msg, client);
+		} else if (msg.match(/^sw[bsadpcfBSADPCF]+?/)) {
+			result = starWarsDice(msg);
+		} else if (msg === 'fudge') {
+			result = fudgeDice();
+		} else if (msg.match(/^stress+?/)) {
+			result = stressDice(msg);
+		} else if (msg.match(/^make[Bb]ooks/)) {
+			result = makeBooks(msg);
+		} else if (msg.match(/^dowsing/)) {
+			result = dowsing(msg);
+		}
+		return result;
+	};
 
     if (!fs.existsSync('./config.json')) {
         fs.writeFileSync('./config.json', JSON.stringify({discord:{token:'YOUR TOKEN'}}).replace(/\r?\n|\r/g,''));
@@ -1500,10 +1615,14 @@ try {
 		fs.writeFileSync('./rp.json', '{}');
 	}
 
-    config = require('./config.json').discord;
-    activeChannels = require('./config.json').activeChannels || '';
-	shadowChannels = require('./config.json').shadowChannels || '';
-	rpconfig = require('./rp.json');
+	var configFile = require('./config.json');
+    config = configFile.discord;
+    activeChannels = configFile.activeChannels || '';
+	shadowChannels = configFile.shadow || '';
+	regen = configFile.regen || '';
+	rpconfig = require('./rp.json') || {};
+	macros = require('./macros.json') || {};
+	trackerMaster = require('./init.json') || {};
 	
 
     if (config.token === 'YOUR TOKEN') {

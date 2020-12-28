@@ -1,3 +1,6 @@
 node_modules
 .idea
 config.json
+init.json
+rp.json
+macros.json
