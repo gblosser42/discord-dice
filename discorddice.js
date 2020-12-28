@@ -558,7 +558,10 @@ try {
                     level += currency === 'pawns' ? 10 : 2;
                 }
                 var potential = quality;
-                var levelReduction = (die(100) * level)/100;
+		    var dieroll = die(100);
+		    console.log(levelReduction);
+		    console.log(dieroll);
+                var levelReduction = (dieroll * level)/100;
 				if (levelReduction > potential) {
 					levelReduction = potential;
 				}
