@@ -544,7 +544,7 @@ try {
                 price++;
             }
 
-            if (die() >= 6) {
+            if (die() >= 4) {
                 //Summae
                 var level = currency === ' pawns' ? 15 : 8;
                 if (die() % 5 === 0) {
@@ -557,10 +557,10 @@ try {
                     level += currency === ' pawns' ? 3 : 2;
                 }
                 if (die() % 5 === 0) {
-                    level += currency === ' pawns' ? 5 : 2;
+                    level += currency === ' pawns' ? 2 : 1;
                 }
                 if (die() % 10 === 0) {
-                    level += currency === ' pawns' ? 10 : 2;
+                    level += currency === ' pawns' ? 3 : 2;
                 }
                 var potential = Math.min(quality, level-1);
 				var dieroll = die(100);
