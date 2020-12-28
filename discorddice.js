@@ -536,30 +536,29 @@ try {
 
             if (die() >= 6) {
                 //Summae
-                var level = 3;
+                var level = currency === 'pawns' ? 15 : 8;
                 if (die() % 5 === 0) {
                     quality++;
                 }
                 if (die() % 2 === 0) {
-                    level++;
+                    level += currency === 'pawns' ? 2 : 1;
                 }
                 if (die() % 3 === 0) {
-                    level++;
+                    level += currency === 'pawns' ? 3 : 2;
                 }
                 if (die() % 5 === 0) {
-                    level++;
+                    level += currency === 'pawns' ? 5 : 2;
                 }
                 if (die() % 10 === 0) {
-                    level++;
+                    level += currency === 'pawns' ? 10 : 2;
                 }
-                var potential = level - 1;
-                while (potential) {
-                    if (die() >= 8) {
-                        level--;
-                        quality++;
-                    }
-                    potential--;
-                }
+                var potential = quality;
+                var levelReduction = (die(100) * level)/100;
+				if (levelReduction > potential) {
+					levelReduction = potential;
+				}
+				level -= levelReduction;
+				quality += levelReduction;
                 summae.push(subject + ' level: ' + level + ' quality: ' + quality + ', for ' + price + currency);
             } else {
                 //Tractatus
