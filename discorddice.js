@@ -559,7 +559,7 @@ try {
                 }
                 var potential = quality;
 		    var dieroll = die(100);
-                var MATH.ceil(levelReduction = (dieroll * level)/100);
+                var Math.ceil(levelReduction = (dieroll * level)/100);
 		    console.log(levelReduction);
 		    console.log(dieroll);
 				if (levelReduction > potential) {
