@@ -570,6 +570,17 @@ try {
 				}
 				level -= levelReduction;
 				quality += levelReduction;
+				var getXpNeeded = function () {
+					var xpNeeded = (level * (level + 1)) / 2;
+					if (currency !== ' pawns') {
+						xpNeeded = xpNeeded * 5;
+					}
+					return xpNeeded;
+				}
+				
+				while (quality > getXpNeeded()) {
+					level++;
+				}
                 summae.push(subject + ' level: ' + level + ' quality: ' + quality + ', for ' + price + currency);
             } else {
                 //Tractatus
