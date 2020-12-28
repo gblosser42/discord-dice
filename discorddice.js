@@ -495,8 +495,8 @@ try {
         var makeBook = function(magic) {
             //Communication +1
             var quality = 7;
-            var price = 1;
-            var crafted = 0;
+            var price = 2;
+            var crafted = 1;
             var isMagic = die(100) <= magic;
             var subject = randomSubject(isMagic);
             var currency = ' pounds';
@@ -504,7 +504,9 @@ try {
             if (isMagic && subject !== 'Magic Theory' && subject !== 'Parma Magica') {
                 price++;
                 currency = ' pawns';
-            }
+            } else {
+				quality += 3;
+			}
 
             if (die() >= 5) {
                 //Communication +2
@@ -522,10 +524,18 @@ try {
                 //Communication +5
                 quality++;
             }
-            if (die() === 10 || isMagic) {
-                //Resonant
+            if (isMagic) {
+                //Resonant Construction
                 quality++;
             }
+			if (isMagic && die() >= 7) {
+				// Resonant Throughout
+				quality++;
+			}
+			if (isMagic && die() >= 9) {
+				// Clarified
+				quality++;
+			}
             if (die() >= 7) {
                 //Great Teacher
                 quality += 3;
@@ -533,35 +543,28 @@ try {
             if (quality >= 10) {
                 price++;
             }
-            if (die() % 2 === 0) {
-                crafted = 1;
-                price++;
-                quality += 3;
-            }
 
             if (die() >= 6) {
                 //Summae
-                var level = currency === 'pawns' ? 15 : 8;
+                var level = currency === ' pawns' ? 15 : 8;
                 if (die() % 5 === 0) {
                     quality++;
                 }
                 if (die() % 2 === 0) {
-                    level += currency === 'pawns' ? 2 : 1;
+                    level += currency === ' pawns' ? 2 : 1;
                 }
                 if (die() % 3 === 0) {
-                    level += currency === 'pawns' ? 3 : 2;
+                    level += currency === ' pawns' ? 3 : 2;
                 }
                 if (die() % 5 === 0) {
-                    level += currency === 'pawns' ? 5 : 2;
+                    level += currency === ' pawns' ? 5 : 2;
                 }
                 if (die() % 10 === 0) {
-                    level += currency === 'pawns' ? 10 : 2;
+                    level += currency === ' pawns' ? 10 : 2;
                 }
-                var potential = quality;
-		    var dieroll = die(100);
+                var potential = Math.min(quality, level-1);
+				var dieroll = die(100);
                 var levelReduction = Math.ceil(levelReduction = (dieroll * level)/100);
-		    console.log(levelReduction);
-		    console.log(dieroll);
 				if (levelReduction > potential) {
 					levelReduction = potential;
 				}
