@@ -348,21 +348,21 @@ try {
             }
         }
         var builder = '';
-        var roll = Math.floor(Math.random() * 10) + 1;
+        var roll = Math.floor(Math.random() * 10);
         var current = roll;
         var final = current;
         var multiplier = 1;
         builder+=current + ',';
-        while (roll === 10) {
+        while (roll === 1) {
             multiplier = multiplier * 2;
-            roll = (Math.floor(Math.random() * 10) + 1);
+            roll = Math.floor(Math.random() * 10);
             builder += roll + ',';
             current = roll * multiplier;
             final = Math.max(final, current);
         }
         builder += '**RESULT: ' + (final + bonus);
-        if (final === 1) {
-            builder += ' which is a BOTCH';
+        if (final === 0) {
+            builder += ' which is a potential BOTCH';
         }
         builder +=  '**';
         return builder;
@@ -429,13 +429,6 @@ try {
             'Survival',
             'Swim',
             'Teaching',
-            'Code of Hermes',
-            'Dominion Lore',
-            'Faerie Lore',
-            'Finesse',
-            'Infernal Lore',
-            'Magic Lore',
-            'Penetration',
             'Artes Liberales',
             'Civil and Canon Law',
             'Common Law',
@@ -467,8 +460,29 @@ try {
             'Imaginem',
             'Vim',
             'Mentem',
+            'Creo',
+            'Muto',
+            'Rego',
+            'Intellego',
+            'Perdo',
+            'Animal',
+            'Auram',
+            'Aquam',
+            'Corpus',
+            'Herbam',
+            'Terram',
+            'Ignem',
+            'Imaginem',
+            'Vim',
+            'Mentem',
+            'Code of Hermes',
+            'Magic Lore',
+            'Dominion Lore',
+            'Faerie Lore',
+            'Infernal Lore',
+            'Penetration',
+            'Finesse',
             'Magic Theory',
-            'Parma Magica',
             'Magic Theory',
             'Parma Magica'
         ];
@@ -495,14 +509,14 @@ try {
         var makeBook = function(magic) {
             //Communication +1
             var quality = 7;
-            var price = 2;
+            var price = 1;
             var crafted = 1;
             var isMagic = die(100) <= magic;
             var subject = randomSubject(isMagic);
             var currency = ' pounds';
 
-            if (isMagic && subject !== 'Magic Theory' && subject !== 'Parma Magica') {
-                price++;
+            if (isMagic && magicSubjects.indexOf(subject) < 30){
+                price+=2;
                 currency = ' pawns';
             } else {
 				quality += 3;
@@ -539,9 +553,6 @@ try {
             if (die() >= 7) {
                 //Great Teacher
                 quality += 3;
-            }
-            if (quality >= 10) {
-                price++;
             }
 
             if (die() >= 4) {
@@ -581,9 +592,31 @@ try {
 				while (quality > getXpNeeded()) {
 					level++;
 				}
+				var state = level + quality;
+				if (state >= 28) {
+					price++;
+				}
+				if (state >= 35) {
+					price++;
+					if (isMagic && magicSubjects.indexOf(subject) < 30){
+						price++;
+					}
+				}
+				if (state >= 41) {
+					price ++;
+					if (isMagic && magicSubjects.indexOf(subject) < 30){
+						price++;
+					}
+				}
+				if (state <= 18) {
+					price--;
+				}
                 summae.push(subject + ' level: ' + level + ' quality: ' + quality + ', for ' + price + currency);
             } else {
                 //Tractatus
+				if (quality >= 15) {
+					price++;
+				}
                 tractatus.push(subject + ' quality: ' + quality + ', for ' + price + currency);
             }
         };
