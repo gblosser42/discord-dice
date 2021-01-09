@@ -355,7 +355,7 @@ try {
         builder+=current + ',';
         while (roll === 1) {
             multiplier = multiplier * 2;
-            roll = Math.floor(Math.random() * 10);
+            roll = (Math.floor(Math.random() * 10) + 1);
             builder += roll + ',';
             current = roll * multiplier;
             final = Math.max(final, current);
