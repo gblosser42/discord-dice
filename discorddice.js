@@ -557,22 +557,30 @@ try {
 
             if (die() >= 4) {
                 //Summae
-                var level = currency === ' pawns' ? 15 : 8;
-                if (die() % 5 === 0) {
-                    quality++;
-                }
-                if (die() % 2 === 0) {
-                    level += currency === ' pawns' ? 2 : 1;
-                }
-                if (die() % 3 === 0) {
-                    level += currency === ' pawns' ? 3 : 2;
-                }
-                if (die() % 5 === 0) {
-                    level += currency === ' pawns' ? 2 : 1;
-                }
-                if (die() % 10 === 0) {
-                    level += currency === ' pawns' ? 3 : 2;
-                }
+				var getXpNeeded = function () {
+					var xpNeeded = (level * (level + 1)) / 2;
+					if (currency !== ' pawns') {
+						xpNeeded = xpNeeded * 5;
+					}
+					return xpNeeded;
+				}
+				var getLevelFromXp = function(xp, ability) {
+					var level = 0;
+					var mult = ability ? 5 : 1;
+					while (xp-((level+1)*mult) >= 0) {
+						level++;
+						xp-=level*mult;
+					}
+					return level;
+				};
+				
+				var xp = 75 + (die() * 5);
+				while (die() === 10) {
+					xp += die() * 5;
+				}
+				
+				
+				var level = getLevelFromXp(xp, currency!=='pawns');
                 var potential = Math.min(quality, level-1);
 				var dieroll = die(100);
                 var levelReduction = Math.ceil(levelReduction = (dieroll * level)/100);
@@ -581,13 +589,6 @@ try {
 				}
 				level -= levelReduction;
 				quality += levelReduction;
-				var getXpNeeded = function () {
-					var xpNeeded = (level * (level + 1)) / 2;
-					if (currency !== ' pawns') {
-						xpNeeded = xpNeeded * 5;
-					}
-					return xpNeeded;
-				}
 				
 				while (quality > getXpNeeded()) {
 					level++;
