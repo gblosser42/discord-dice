@@ -511,6 +511,7 @@ try {
             var quality = 7;
             var price = 1;
             var crafted = 1;
+			var isArt = false;
             var isMagic = die(100) <= magic;
             var subject = randomSubject(isMagic);
             var currency = ' pounds';
@@ -518,7 +519,11 @@ try {
             if (isMagic && magicSubjects.indexOf(subject) < 30){
                 price+=2;
                 currency = ' pawns';
-            } else {
+				isArt = true;
+            } else if (isMagic) {
+				price+=1;
+				currency = ' pawns';
+			}else {
 				quality += 3;
 			}
 			
@@ -563,7 +568,7 @@ try {
                 //Summae
 				var getXpNeeded = function () {
 					var xpNeeded = (level * (level + 1)) / 2;
-					if (currency !== ' pawns') {
+					if (!isArt) {
 						xpNeeded = xpNeeded * 5;
 					}
 					return xpNeeded;
@@ -584,7 +589,7 @@ try {
 				}
 				
 				
-				var level = getLevelFromXp(xp, currency!==' pawns');
+				var level = getLevelFromXp(xp, !isArt);
                 var potential = Math.min(quality, level-1);
 				var dieroll = boostDie(100);
                 var levelReduction = Math.ceil((dieroll * potential)/100);
