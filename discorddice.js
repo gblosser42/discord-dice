@@ -522,7 +522,7 @@ try {
 				quality += 3;
 			}
 			
-			var boostDie = function(sides) = {
+			var boostDie = function(sides) {
 				return die(sides)+boost;
 			}
 
