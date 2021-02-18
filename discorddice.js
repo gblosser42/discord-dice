@@ -575,8 +575,8 @@ try {
 				};
 				
 				var xp = 100 + (die() * 10);
-				while (die() === 10) {
-					xp += die() * 10;
+				while (die() >= 6) {
+					xp += die() * 5;
 				}
 				
 				
