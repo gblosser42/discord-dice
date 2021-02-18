@@ -574,7 +574,7 @@ try {
 					return level;
 				};
 				
-				var xp = 100 + (die() * 10);
+				var xp = 75 + (die() * 10);
 				while (die() >= 6) {
 					xp += die() * 5;
 				}
