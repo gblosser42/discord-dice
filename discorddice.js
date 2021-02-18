@@ -613,7 +613,7 @@ try {
 					price--;
 				}
 				price = Math.max(1, price);
-                summae.push(subject + ' level: ' + level + ' quality: ' + quality + ', for ' + price + currency);
+                summae.push(subject + ' level: ' + level + ' quality: ' + quality + ', for ' + price + currency + ' ' + xp);
             } else {
                 //Tractatus
 				if (quality >= 15) {
