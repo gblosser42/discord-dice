@@ -583,7 +583,7 @@ try {
 				var level = getLevelFromXp(xp, currency!=='pawns');
                 var potential = Math.min(quality, level-1);
 				var dieroll = die(100);
-                var levelReduction = Math.ceil(levelReduction = (dieroll * level)/100);
+                var levelReduction = Math.ceil((dieroll * potential)/100);
 				if (levelReduction > potential) {
 					levelReduction = potential;
 				}
