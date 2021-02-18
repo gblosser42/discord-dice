@@ -506,7 +506,7 @@ try {
         var tractatus = [];
 
 
-        var makeBook = function(magic) {
+        var makeBook = function(magic, boost) {
             //Communication +1
             var quality = 7;
             var price = 1;
@@ -521,20 +521,24 @@ try {
             } else {
 				quality += 3;
 			}
+			
+			var boostDie = function(sides) = {
+				return die(sides)+boost;
+			}
 
-            if (die() >= 5) {
+            if (boostDie() >= 5) {
                 //Communication +2
                 quality++;
             }
-            if (die() >= 6) {
+            if (boostDie() >= 6) {
                 //Communication +3
                 quality++;
             }
-            if (die() >= 7) {
+            if (boostDie() >= 7) {
                 //Communication +4
                 quality++;
             }
-            if (die() >= 9) {
+            if (boostDie() >= 9) {
                 //Communication +5
                 quality++;
             }
@@ -542,20 +546,20 @@ try {
                 //Resonant Construction
                 quality++;
             }
-			if (isMagic && die() >= 7) {
+			if (isMagic && boostDie() >= 7) {
 				// Resonant Throughout
 				quality++;
 			}
-			if (isMagic && die() >= 9) {
+			if (isMagic && boostDie() >= 9) {
 				// Clarified
 				quality++;
 			}
-            if (die() >= 7) {
+            if (boostDie() >= 7) {
                 //Great Teacher
                 quality += 3;
             }
 
-            if (die() >= 4) {
+            if (boostDie() >= 4) {
                 //Summae
 				var getXpNeeded = function () {
 					var xpNeeded = (level * (level + 1)) / 2;
@@ -574,15 +578,15 @@ try {
 					return level;
 				};
 				
-				var xp = 75 + (die() * 10);
-				while (die() >= 6) {
-					xp += die() * 5;
+				var xp = 75 + (boostDie() * 10);
+				while (boostDie() >= 6) {
+					xp += boostDie() * 5;
 				}
 				
 				
 				var level = getLevelFromXp(xp, currency!==' pawns');
                 var potential = Math.min(quality, level-1);
-				var dieroll = die(100);
+				var dieroll = boostDie(100);
                 var levelReduction = Math.ceil((dieroll * potential)/100);
 				if (levelReduction > potential) {
 					levelReduction = potential;
@@ -626,15 +630,19 @@ try {
         var parts = message.split(' ');
         var numBooks = 1;
         var magicChance = 0;
+		var boost = 0;
         if (parts.length >= 2) {
             numBooks = parseInt(parts[1]);
         }
         if (parts.length >= 3) {
             magicChance = parseInt(parts[2]);
         }
+		if (parts.length >= 4) {
+			boost = parseInt(parts[3]);
+		}
 
         for (var i = 0; i < numBooks; i++) {
-            makeBook(magicChance);
+            makeBook(magicChance, boost);
         }
 
         var builder = '\nSUMMAE';
