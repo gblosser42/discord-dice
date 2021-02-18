@@ -638,7 +638,7 @@ try {
             magicChance = parseInt(parts[2]);
         }
 		if (parts.length >= 4) {
-			boost = parseInt(parts[3]);
+			boost = Math.min(4, parseInt(parts[3]));
 		}
 
         for (var i = 0; i < numBooks; i++) {
