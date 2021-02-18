@@ -574,9 +574,9 @@ try {
 					return level;
 				};
 				
-				var xp = 75 + (die() * 5);
+				var xp = 100 + (die() * 10);
 				while (die() === 10) {
-					xp += die() * 5;
+					xp += die() * 10;
 				}
 				
 				
@@ -612,6 +612,7 @@ try {
 				if (state <= 18) {
 					price--;
 				}
+				price = Math.max(1, price);
                 summae.push(subject + ' level: ' + level + ' quality: ' + quality + ', for ' + price + currency);
             } else {
                 //Tractatus
