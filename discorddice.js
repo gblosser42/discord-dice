@@ -1444,10 +1444,10 @@ try {
             if (usernameProperties) {
                 console.log({usernameProperties});
                 var nickname = usernameProperties[1];
-                var hpCurrent = usernameProperties[2];
-                var hpMax = usernameProperties[3];
-                var mpCurrent = usernameProperties[4];
-                var mpMax = usernameProperties[5];
+                var hpCurrent = parseInt(usernameProperties[2], 10);
+                var hpMax = parseInt(usernameProperties[3], 10);
+                var mpCurrent = parseInt(usernameProperties[4], 10);
+                var mpMax = parseInt(usernameProperties[5], 10);
                 if (isMax) {
                     var changeAmount = parseInt(parts[2], 10);
                     if (isMp) {
