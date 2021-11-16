@@ -1021,8 +1021,8 @@ try {
         return builder + '\n' + '**TOTAL: ' + final + '**';
     };
 
-    var initiativeHandler = function (message, user, mess) {
-        var guildUser = mess.guild.members.fetch({user, force: true});
+    var initiativeHandler = async function (message, user, mess) {
+        var guildUser = await mess.guild.members.fetch({user, force: true});
         console.log(guildUser);
         var username = guildUser.nickname || user.username;
         var raw = message.substr(1).toLowerCase();
