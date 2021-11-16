@@ -1022,7 +1022,8 @@ try {
     };
 
     var initiativeHandler = function (message, user, mess) {
-        var username = mess.guild.member(user).nickname || user.username;
+        var guildUser = mess.guild.member(user);
+        var username = guildUser.nickname || user.username;
         var raw = message.substr(1).toLowerCase();
         var parts = raw.split(' ');
         var command = parts[0];
@@ -1429,6 +1430,40 @@ try {
 			}
             sendMessage(output);
         };
+        var initialize = function () {
+            var hp = parts[2];
+            var mp = parts[3];
+            var name = parts[1];
+            guildUser.setNickname(`${name} (HP:${hp}/${hp}|MP:${mp}/${mp})`);
+        };
+        var modifyStats = function (stat) {
+            var isMax = parts[1] === 'max';
+            var isMp = stat === 'mp';
+            if (username.indexOf('HP') > -1) {
+                var usernameProperties = username.match(/(.+?) \(HP\:([0-9]+?)\/([0-9]+?)\|MP\:([0-9]+?)\/([0-9]+?)\)/);
+                var nickname = usernameProperties[1];
+                var hpCurrent = usernameProperties[2];
+                var hpMax = usernameProperties[3];
+                var mpCurrent = usernameProperties[4];
+                var mpMax = usernameProperties[5];
+                if (isMax) {
+                    var changeAmount = parseInt(parts[2], 10);
+                    if (isMp) {
+                        mpMax += changeAmount;
+                    } else {
+                        hpMax += changeAmount;
+                    }
+                } else {
+                    var changeAmount = parseInt(parts[1], 10);
+                    if (isMp) {
+                        mpCurrent += changeAmount;
+                    } else {
+                        hpCurrent += changeAmount;
+                    }
+                }
+                guildUser.setNickname(`${nickname} (HP:${hpCurrent}/${hpMax}|${mpCurrent}/${mpMax})`);
+            }
+        };
         var help = function () {
             var output = '\nreset\nnext\nadd NAME [INITIATIVE] [MAXMOTES]\nlist\ncheck NAME\nset NAME TRAIT VALUE\nmodify NAME TRAIT AMOUNT\nwithering ATTACKER DEFENDER AMOUNT\ndelete NAME\nundo\nredo\nhelp';
             sendMessage(output);
@@ -1481,6 +1516,15 @@ try {
                 case 'help':
                     help();
                     break;
+                case 'init':
+                    initialize();
+                    break;
+                case 'hp':
+                    modifyStats('hp');
+                    break;
+                case 'mp':
+                    modifyStats('mp');
+                    break;
                 case 'duel':
                     //duel();
                     break;
@@ -1495,7 +1539,11 @@ try {
 
 	var saveInit = function () {
 		fs.writeFileSync('./init.json', JSON.stringify(trackerMaster));
-	};
+    };
+    
+    var saveCharacters = function () {
+        fs.writeFileSync('./characters.json', JSON.stringify(characterMaster));
+    }
 
     var mainProcess = function () {
 
