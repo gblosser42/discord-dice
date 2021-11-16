@@ -1022,7 +1022,8 @@ try {
     };
 
     var initiativeHandler = function (message, user, mess) {
-        var guildUser = mess.guild.member(user);
+        var guildUser = mess.guild.members.fetch(user.id);
+        console.log(guildUser);
         var username = guildUser.nickname || user.username;
         var raw = message.substr(1).toLowerCase();
         var parts = raw.split(' ');
@@ -1477,7 +1478,7 @@ try {
                 if (mpCurrent < 0) {
                     mpCurrent = 0;
                 }
-                guildUser.setNickname(`${nickname} (HP:${hpCurrent}/${hpMax}|${mpCurrent}/${mpMax})`);
+                guildUser.setNickname(`${nickname} (HP:${hpCurrent}/${hpMax}|MP:${mpCurrent}/${mpMax})`);
             }
         };
         var help = function () {
