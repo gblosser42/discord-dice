@@ -1023,7 +1023,6 @@ try {
 
     var initiativeHandler = async function (message, user, mess) {
         var guildUser = await mess.guild.members.fetch({user, force: true});
-        console.log(guildUser);
         var username = guildUser.nickname || user.username;
         var raw = message.substr(1).toLowerCase();
         var parts = raw.split(' ');
@@ -1441,42 +1440,45 @@ try {
             console.log(stat, JSON.stringify(parts));
             var isMax = parts[1] === 'max';
             var isMp = stat === 'mp';
+            var isHeal = stat === 'heal';
             var usernameProperties = username.match(/(.+?) \(HP\:([0-9]+?)\/([0-9]+?)\|MP\:([0-9]+?)\/([0-9]+?)\)/);
-            console.log(usernameProperties);
-            console.log(username);
             if (usernameProperties) {
-                console.log({usernameProperties});
                 var nickname = usernameProperties[1];
                 var hpCurrent = parseInt(usernameProperties[2], 10);
                 var hpMax = parseInt(usernameProperties[3], 10);
                 var mpCurrent = parseInt(usernameProperties[4], 10);
                 var mpMax = parseInt(usernameProperties[5], 10);
-                if (isMax) {
-                    var changeAmount = parseInt(parts[2], 10);
-                    if (isMp) {
-                        mpMax += changeAmount;
-                    } else {
-                        hpMax += changeAmount;
-                    }
-                } else {
-                    var changeAmount = parseInt(parts[1], 10);
-                    if (isMp) {
-                        mpCurrent += changeAmount;
-                    } else {
-                        hpCurrent += changeAmount;
-                    }
-                }
-                if (hpCurrent > hpMax) {
+                if (isHeal) {
                     hpCurrent = hpMax;
-                }
-                if (mpCurrent > mpMax) {
-                    hpCurrent = mpMax;
-                }
-                if (hpCurrent < 0) {
-                    hpCurrent = 0;
-                }
-                if (mpCurrent < 0) {
-                    mpCurrent = 0;
+                    mpCurrent = mpMax;
+                } else {
+                    if (isMax) {
+                        var changeAmount = parseInt(parts[2], 10);
+                        if (isMp) {
+                            mpMax += changeAmount;
+                        } else {
+                            hpMax += changeAmount;
+                        }
+                    } else {
+                        var changeAmount = parseInt(parts[1], 10);
+                        if (isMp) {
+                            mpCurrent += changeAmount;
+                        } else {
+                            hpCurrent += changeAmount;
+                        }
+                    }
+                    if (hpCurrent > hpMax) {
+                        hpCurrent = hpMax;
+                    }
+                    if (mpCurrent > mpMax) {
+                        hpCurrent = mpMax;
+                    }
+                    if (hpCurrent < 0) {
+                        hpCurrent = 0;
+                    }
+                    if (mpCurrent < 0) {
+                        mpCurrent = 0;
+                    }
                 }
                 guildUser.setNickname(`${nickname} (HP:${hpCurrent}/${hpMax}|MP:${mpCurrent}/${mpMax})`);
             }
@@ -1541,6 +1543,9 @@ try {
                     break;
                 case 'mp':
                     modifyStats('mp');
+                    break;
+                case 'heal':
+                    modifyStats('heal');
                     break;
                 case 'duel':
                     //duel();
