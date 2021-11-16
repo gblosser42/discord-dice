@@ -1434,6 +1434,7 @@ try {
             var hp = parts[2];
             var mp = parts[3];
             var name = parts[1];
+            console.log(guildUser);
             guildUser.setNickname(`${name} (HP:${hp}/${hp}|MP:${mp}/${mp})`);
         };
         var modifyStats = function (stat) {
