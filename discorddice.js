@@ -1434,14 +1434,15 @@ try {
             var hp = parts[2];
             var mp = parts[3];
             var name = parts[1];
-            console.log(guildUser);
             guildUser.setNickname(`${name} (HP:${hp}/${hp}|MP:${mp}/${mp})`);
         };
         var modifyStats = function (stat) {
+            console.log(stat, JSON.stringify(parts));
             var isMax = parts[1] === 'max';
             var isMp = stat === 'mp';
-            if (username.indexOf('HP') > -1) {
-                var usernameProperties = username.match(/(.+?) \(HP\:([0-9]+?)\/([0-9]+?)\|MP\:([0-9]+?)\/([0-9]+?)\)/);
+            var usernameProperties = username.match(/(.+?) \(HP\:([0-9]+?)\/([0-9]+?)\|MP\:([0-9]+?)\/([0-9]+?)\)/);
+            if (usernameProperties) {
+                console.log({usernameProperties});
                 var nickname = usernameProperties[1];
                 var hpCurrent = usernameProperties[2];
                 var hpMax = usernameProperties[3];
