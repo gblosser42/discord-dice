@@ -1441,6 +1441,8 @@ try {
             var isMax = parts[1] === 'max';
             var isMp = stat === 'mp';
             var usernameProperties = username.match(/(.+?) \(HP\:([0-9]+?)\/([0-9]+?)\|MP\:([0-9]+?)\/([0-9]+?)\)/);
+            console.log(usernameProperties);
+            console.log(username);
             if (usernameProperties) {
                 console.log({usernameProperties});
                 var nickname = usernameProperties[1];
