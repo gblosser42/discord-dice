@@ -1022,7 +1022,7 @@ try {
     };
 
     var initiativeHandler = function (message, user, mess) {
-        var guildUser = mess.channel.guild.members.fetch(user.id);
+        var guildUser = mess.guild.member(user);
         console.log(guildUser);
         var username = guildUser.nickname || user.username;
         var raw = message.substr(1).toLowerCase();
