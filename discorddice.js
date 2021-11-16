@@ -1052,12 +1052,12 @@ try {
 
         if (parts[1]) {
             if (parts[1].toLowerCase() === 'me' || parts[1].toLowerCase() === 'my') {
-                parts[1] = username.replace(/ /g,'').toLowerCase();
+                parts[1] = username.split('(')[0].replace(/ /g,'').toLowerCase();
             }
         }
         if (parts[2]) {
             if (parts[2].toLowerCase() === 'me' || parts[2].toLowerCase() === 'my') {
-                parts[2] = username.replace(/ /g,'').toLowerCase();
+                parts[2] = username.split('(')[0].replace(/ /g,'').toLowerCase();
             }
         }
 		if ((parts[1] && parts[1].toLowerCase() === 'all') || (parts[2] && parts[2].toLowerCase() === 'all')) {
@@ -1462,6 +1462,18 @@ try {
                     } else {
                         hpCurrent += changeAmount;
                     }
+                }
+                if (hpCurrent > hpMax) {
+                    hpCurrent = hpMax;
+                }
+                if (mpCurrent > mpMax) {
+                    hpCurrent = mpMax;
+                }
+                if (hpCurrent < 0) {
+                    hpCurrent = 0;
+                }
+                if (mpCurrent < 0) {
+                    mpCurrent = 0;
                 }
                 guildUser.setNickname(`${nickname} (HP:${hpCurrent}/${hpMax}|${mpCurrent}/${mpMax})`);
             }
