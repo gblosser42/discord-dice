@@ -1,0 +1,9 @@
+Error: Cannot find module './macros.json'
+Require stack:
+- C:\Users\Glen\Desktop\discord-dice\discorddice.js
+Error: Cannot find module './macros.json'
+Require stack:
+- C:\Users\Glen\Desktop\discord-dice\discorddice.js
+TypeError [ClientMissingIntents]: Valid intents must be provided for the Client.
+RangeError [BitFieldInvalid]: Invalid bitfield flag or number: GUILDS.
+ReferenceError: GatewayIntentBits is not defined

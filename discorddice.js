@@ -1569,15 +1569,16 @@ try {
 
     var mainProcess = function () {
 
-
-     mybot = new Discord.Client();
+     mybot = new Discord.Client({
+		 intents: [Discord.GatewayIntentBits.Guilds,Discord.GatewayIntentBits.GuildMessages,Discord.GatewayIntentBits.DirectMessages,Discord.GatewayIntentBits.MessageContent]
+	 });
      mybot.login(config.token);
 
-     mybot.on('message', function(mess) {
+     mybot.on('messageCreate', function(mess) {
         var user, channelID, message, server;
         var result;
         message = mess.content;
-        channelID = mess.channel.id;
+        channelID = mess.channelId;
         user = mess.author;
 		server = mess.channel.guild;
         var msg = message.match(/\((.+)\)/) || message.match(/\/roll (.+)/);
