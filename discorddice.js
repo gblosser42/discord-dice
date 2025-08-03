@@ -18,6 +18,7 @@ var shadowChannels = '';
 var fateMasterDeck = [-4,-3,-2,-3,-2,-1,-2,-1,0,-3,-2,-1,-2,-1,0,-1,0,1,-2,-1,0,-1,0,1,0,1,2,-3,-2,-1,-2,-1,0,-1,0,1,-2,-1,0,-1,0,1,0,1,2,-1,0,1,0,1,2,1,2,3,-2,-1,0,-1,0,1,0,1,2,-1,0,1,0,1,2,1,2,3,0,1,2,1,2,3,2,3,4];
 var fateDeck = {};
 var latestSpeaker = {};
+var emojis = {};
 
 var log = function(message, isError) {
     if (isError) {
@@ -291,41 +292,105 @@ try {
         successes += auto;
         return builder + '\n' + '**SUCCESSES: ' + successes + '**';
     };
+	
+	var fetchEmoji = async function (guild, emojiName) {
+		var foundValue;
+		await guild.emojis.fetch().then(emojis => {
+			emojis.forEach(emoji=> {
+				if (emoji.name === emojiName) {
+					foundValue = emoji;
+					console.log(emoji)
+				}
+			});
+		});
+		if (foundValue) {
+			return foundValue.toString();
+		}
+		return foundValue;
+	}
 
-    var baseDice = function (message) {
+    var baseDice = async function (message,client,messageObject) {
         var dice;
         var diceSize;
         var total = 0;
         var builder = '';
         var result;
+		var isPlot = false;
         var parts = message.split('+');
+        var opportunity = emojis.opportunity;
+		if (!opportunity) {
+			opportunity = await fetchEmoji(messageObject.guild,'opportunity');
+			emojis.opportunity = opportunity;
+		}
+        var blank = emojis.blank;
+		if (!blank) {
+			blank = await fetchEmoji(messageObject.guild,'blank');
+			emojis.blank = blank;
+		}
+        var complication2 = emojis.complication2;
+		if (!complication2) {
+			complication2 = await fetchEmoji(messageObject.guild,'complication2');
+			emojis.complication2 = complication2;
+		}
+        var complication4 = emojis.complication4;
+		if (!complication4) {
+			complication4 = await fetchEmoji(messageObject.guild,'complication4');
+			emojis.complication4 = complication4;
+		}
         parts.forEach(function(part, index){
             var checkneg = part.split('-');
             part = checkneg[0];
+			isPlot = false;
             if (checkneg.length > 1) {
                 total -= parseInt(checkneg[1]);
             }
-            dice = part.match(/([0-9]+)d([0-9]+)/);
-            if (dice) {
-                diceSize = parseInt(dice[2], 10);
-                dice = parseInt(dice[1], 10);
-            } else {
-                dice = 0;
-                total += parseInt(part);
-            }
+			if (part === 'plot' || part === 'p') {
+				diceSize = 6;
+				dice = 1;
+				isPlot = true;
+			} else {
+				dice = part.match(/([0-9]+)d([0-9]+)/);
+				if (dice) {
+					diceSize = parseInt(dice[2], 10);
+					dice = parseInt(dice[1], 10);
+				} else {
+					dice = 0;
+					total += parseInt(part);
+				}
+			}
             while (dice > 0) {
                 result = Math.floor(Math.random() * diceSize);
-                if (result === 0) {
-                    result = diceSize;
-                }
-                if (result === 1) {
-                    builder += boldOnes + result + boldOnes;
-                } else if (result === diceSize) {
-                    builder += '**' + result + '**';
-                } else {
-                    builder += result;
-                }
-                total += result;
+				if (isPlot) {
+					switch (result) {
+						case 5:
+						case 0:
+							builder += opportunity;
+							break;
+						case 1:
+							builder += complication2;
+							total += 2;
+							break;
+						case 2:
+							builder += complication4;
+							total += 4;
+							break;
+						default:
+							builder += blank;
+							break;
+					}
+				} else {
+					if (result === 0) {
+						result = diceSize;
+					}
+					if (result === 1) {
+						builder += boldOnes + result + boldOnes;
+					} else if (result === diceSize) {
+						builder += '**' + result + '**';
+					} else {
+						builder += result;
+					}
+					total += result;
+				}
                 dice -= 1;
                 if (dice > 0 || index < parts.length - 1) {
                     builder += ',';
@@ -772,8 +837,8 @@ try {
         var shadow = message.match(/s/);
         var weary = message.match(/w/);
         var auto = message.match(/(\+|-)([0-9]+)/);
-        var eos = client.emojis.find('name','eos') || 'EYE';
-        var gandalf = client.emojis.find('name','gandalf') || 'GANDALF';
+        var eos = (client.emojis.cache.find((emoji) => emoji.name === 'eos').toString());
+        var gandalf = (client.emojis.cache.find((emoji) => emoji.name === 'gandalf').toString());
         var result;
         var builder = '';
         var total = 0;
@@ -1567,14 +1632,14 @@ try {
         fs.writeFileSync('./characters.json', JSON.stringify(characterMaster));
     }
 
-    var mainProcess = function () {
+    var mainProcess = async function () {
 
      mybot = new Discord.Client({
 		 intents: [Discord.GatewayIntentBits.Guilds,Discord.GatewayIntentBits.GuildMessages,Discord.GatewayIntentBits.DirectMessages,Discord.GatewayIntentBits.MessageContent]
 	 });
      mybot.login(config.token);
 
-     mybot.on('messageCreate', function(mess) {
+     mybot.on('messageCreate', async function(mess) {
         var user, channelID, message, server;
         var result;
         message = mess.content;
@@ -1692,13 +1757,13 @@ try {
 					numDice = numDice[1];
 					macro = macro.replace(numDice, Math.max(parseInt(numDice) + macroModifier, 1));
 				}
-				result = diceChecker(macro, mess.client);
+				result = await diceChecker(macro, mess.client);
 				mess.reply(result);
 			}
 		} else {
             if (msg) {
                 log(msg[1]);
-                result = diceChecker(msg[1], mess.client);
+                result = await diceChecker(msg[1], mess.client, mess);
                 if (result) {
                     mess.reply(result);
                     }
@@ -1709,7 +1774,7 @@ try {
         });
     };
 	
-	var diceChecker = function (msg, client) {
+	var diceChecker = async function (msg, client, message) {
 		var result;
 		if (msg.match(/^[0-9]+?e/)) {
 			result = exaltedDice(msg)
@@ -1717,8 +1782,8 @@ try {
 			result = wodDice(msg);
 		} else if (msg.match(/^[0-9]+?o/)) {
 			result = owodDice(msg);
-		} else if (msg.match(/^[0-9]+?d/)) {
-			result = baseDice(msg);
+		} else if (msg.match(/^[0-9]+?d/) || msg.match(/^plot$/)) {
+			result = await baseDice(msg,client,message);
 		} else if (msg.match(/^[0-9]+?s/)) {
 			result = shadowrunDice(msg);
 		} else if (msg.match(/^[0-9]+?k/)) {
@@ -1726,7 +1791,7 @@ try {
 		} else if (msg.match(/^[0-9]+?l/)) {
 			result = newfiverDice(msg, client);
 		} else if (msg.match(/^[0-9]+?r/)) {
-			result = oneRingDice(msg, client);
+			result = oneRingDice(msg, client,message);
 		} else if (msg.match(/^[0-9]+?x/)) {
 			result = dxDice(msg, client);
 		} else if (msg.match(/^sw[bsadpcfBSADPCF]+?/)) {
