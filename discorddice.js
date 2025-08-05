@@ -315,6 +315,7 @@ try {
         var total = 0;
 		var checkTotal = 0;
 		var damageTotal = 0;
+		var complicationBonus = 0;
 		var bonus = 0;
         var builder = '';
         var result;
@@ -375,12 +376,12 @@ try {
 						case 1:
 							builder += complication2;
 							total += 2;
-							checkTotal += 2;
+							complicationBonus += 2;
 							break;
 						case 2:
 							builder += complication4;
 							total += 4;
-							checkTotal += 4;
+							complicationBonus += 4;
 							break;
 						default:
 							builder += blank;
@@ -411,7 +412,7 @@ try {
             }
         });
 		if (cosmereChannels.indexOf(channelId) >= -1 && damageTotal > 0 && checkTotal > 0) {
-			return `${builder}\n**CHECK RESULT: ${checkTotal + bonus}** ; **HIT DAMAGE: ${damageTotal + bonus}** ; **GRAZE DAMAGE: ${damageTotal}**`;
+			return `${builder}\n**CHECK RESULT: ${checkTotal + bonus + complicationBonus}** ; **HIT DAMAGE: ${damageTotal + bonus}** ; **GRAZE DAMAGE: ${damageTotal}**`;
 		}
         return builder + '\n' + '**TOTAL: ' + total + '**';
     };
