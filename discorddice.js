@@ -410,7 +410,7 @@ try {
                 }
             }
         });
-		if (cosmereChannels.indexOf(channelId) >= -1) {
+		if (cosmereChannels.indexOf(channelId) >= -1 && damageTotal > 0 && checkTotal > 0) {
 			return `${builder}\n**CHECK RESULT: ${checkTotal + bonus}** ; **HIT DAMAGE: ${damageTotal + bonus}** ; **GRAZE DAMAGE: ${damageTotal}**`;
 		}
         return builder + '\n' + '**TOTAL: ' + total + '**';
