@@ -15,6 +15,7 @@ var activeChannels = '';
 var boldOnes = '';
 var regen = '';
 var shadowChannels = '';
+var cosmereChannels = '';
 var fateMasterDeck = [-4,-3,-2,-3,-2,-1,-2,-1,0,-3,-2,-1,-2,-1,0,-1,0,1,-2,-1,0,-1,0,1,0,1,2,-3,-2,-1,-2,-1,0,-1,0,1,-2,-1,0,-1,0,1,0,1,2,-1,0,1,0,1,2,1,2,3,-2,-1,0,-1,0,1,0,1,2,-1,0,1,0,1,2,1,2,3,0,1,2,1,2,3,2,3,4];
 var fateDeck = {};
 var latestSpeaker = {};
@@ -299,7 +300,6 @@ try {
 			emojis.forEach(emoji=> {
 				if (emoji.name === emojiName) {
 					foundValue = emoji;
-					console.log(emoji)
 				}
 			});
 		});
@@ -313,9 +313,13 @@ try {
         var dice;
         var diceSize;
         var total = 0;
+		var checkTotal = 0;
+		var damageTotal = 0;
+		var bonus = 0;
         var builder = '';
         var result;
 		var isPlot = false;
+        var channelId = messageObject.channel.id;
         var parts = message.split('+');
         var opportunity = emojis.opportunity;
 		if (!opportunity) {
@@ -343,6 +347,7 @@ try {
 			isPlot = false;
             if (checkneg.length > 1) {
                 total -= parseInt(checkneg[1]);
+				bonus -= parseInt(checkneg[1]);
             }
 			if (part === 'plot' || part === 'p') {
 				diceSize = 6;
@@ -356,6 +361,7 @@ try {
 				} else {
 					dice = 0;
 					total += parseInt(part);
+					bonus += parseInt(part);
 				}
 			}
             while (dice > 0) {
@@ -369,10 +375,12 @@ try {
 						case 1:
 							builder += complication2;
 							total += 2;
+							checkTotal += 2;
 							break;
 						case 2:
 							builder += complication4;
 							total += 4;
+							checkTotal += 4;
 							break;
 						default:
 							builder += blank;
@@ -390,6 +398,11 @@ try {
 						builder += result;
 					}
 					total += result;
+					if (diceSize === 20) {
+						checkTotal += result;
+					} else {
+						damageTotal += result;
+					}
 				}
                 dice -= 1;
                 if (dice > 0 || index < parts.length - 1) {
@@ -397,7 +410,9 @@ try {
                 }
             }
         });
-
+		if (cosmereChannels.indexOf(channelId) >= -1) {
+			return `${builder}\n**CHECK RESULT: ${checkTotal + bonus}** ; **HIT DAMAGE: ${damageTotal + bonus}** ; **GRAZE DAMAGE: ${damageTotal}**`;
+		}
         return builder + '\n' + '**TOTAL: ' + total + '**';
     };
 
@@ -1666,7 +1681,15 @@ try {
         } else if (message === '!shadow') {			
             if (shadowChannels.indexOf(channelID) === -1) {
                 shadowChannels+=channelID;
-                fs.writeFileSync('./config.json', JSON.stringify({discord:config, activeChannels:activeChannels, shadow:shadowChannels, regen:regen}).replace(/\r?\n|\r/g,''));
+                fs.writeFileSync('./config.json', JSON.stringify({discord:config, activeChannels:activeChannels, shadow:shadowChannels, regen:regen, cosmere:cosmereChannels}).replace(/\r?\n|\r/g,''));
+            } else {
+				shadowChannels = shadowChannels.replace(channelID,'');
+				fs.writeFileSync('./config.json', JSON.stringify({discord:config, activeChannels:activeChannels, shadow:shadowChannels, regen:regen, cosmere:cosmereChannels}).replace(/\r?\n|\r/g,''));
+			}
+		} else if (message === '!cosmere') {			
+            if (cosmereChannels.indexOf(channelID) === -1) {
+                cosmereChannels+=channelID;
+                fs.writeFileSync('./config.json', JSON.stringify({discord:config, activeChannels:activeChannels, shadow:shadowChannels, regen:regen, cosmere: cosmereChannels}).replace(/\r?\n|\r/g,''));
             } else {
 				shadowChannels = shadowChannels.replace(channelID,'');
 				fs.writeFileSync('./config.json', JSON.stringify({discord:config, activeChannels:activeChannels, shadow:shadowChannels, regen:regen}).replace(/\r?\n|\r/g,''));
@@ -1674,15 +1697,15 @@ try {
 		} else if (message === '!regen') {
 			if (regen.indexOf(channelID) === -1) {
 				regen+=channelID;
-				fs.writeFileSync('./config.json', JSON.stringify({discord:config, activeChannels:activeChannels, shadow:shadowChannels, regen:regen}).replace(/\r?\n|\r/g,''));
+				fs.writeFileSync('./config.json', JSON.stringify({discord:config, activeChannels:activeChannels, shadow:shadowChannels, regen:regen, cosmere:cosmereChannels}).replace(/\r?\n|\r/g,''));
 			} else {
 				regen = regen.replace(channelID,'');
-				fs.writeFileSync('./config.json', JSON.stringify({discord:config, activeChannels:activeChannels, shadow:shadowChannels, regen:regen}).replace(/\r?\n|\r/g,''));
+				fs.writeFileSync('./config.json', JSON.stringify({discord:config, activeChannels:activeChannels, shadow:shadowChannels, regen:regen, cosmere:cosmereChannels}).replace(/\r?\n|\r/g,''));
 			}
 		} else if (message === '!config') {
 			mess.reply(activeChannels);
 			mess.reply(shadowChannels);
-			mess.replay(regen);
+			mess.reply(regen);
 			mess.reply(channelID);
 		} else if (message.toLowerCase() === '!startrp') {
 			if (rpconfig[server] === undefined) {
@@ -1820,6 +1843,7 @@ try {
     config = configFile.discord;
     activeChannels = configFile.activeChannels || '';
 	shadowChannels = configFile.shadow || '';
+	cosmereChannels = configFile.cosmere || '';
 	regen = configFile.regen || '';
 	rpconfig = require('./rp.json') || {};
 	macros = require('./macros.json') || {};
