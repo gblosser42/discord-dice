@@ -308,6 +308,67 @@ try {
 		}
 		return foundValue;
 	}
+	
+	var sevenPartDice = async function (message,client,messageObject) {
+		var dice, diceSize, result;
+		var builder = [];
+		var parts = message.split('+');
+		var { salt, jupiter, mars, venus, mercury, luna, saturn, neptune, sol, sulfur } = emojis;
+		if (!salt) {
+			salt = await fetchEmoji(messageObject.guild,'sppsalt');
+			emojis.salt = salt;
+		}
+		if (!jupiter) {
+			jupiter = await fetchEmoji(messageObject.guild,'sppjupiter');
+			emojis.jupiter = jupiter;
+		}
+		if (!mars) {
+			mars = await fetchEmoji(messageObject.guild,'sppmars');
+			emojis.mars = mars;
+		}
+		if (!venus) {
+			venus = await fetchEmoji(messageObject.guild,'sppvenus');
+			emojis.venus = venus;
+		}
+		if (!mercury) {
+			mercury = await fetchEmoji(messageObject.guild,'sppmercury');
+			emojis.mercury = mercury;
+		}
+		if (!luna) {
+			luna = await fetchEmoji(messageObject.guild,'sppluna');
+			emojis.luna = luna;
+		}
+		if (!saturn) {
+			saturn = await fetchEmoji(messageObject.guild,'sppsaturn');
+			emojis.saturn = saturn;
+		}
+		if (!neptune) {
+			neptune = await fetchEmoji(messageObject.guild,'sppneptune');
+			emojis.neptune = neptune;
+		}
+		if (!sol) {
+			sol = await fetchEmoji(messageObject.guild,'sppsol');
+			emojis.sol = sol;
+		}
+		if (!sulfur) {
+			sulfur = await fetchEmoji(messageObject.guild,'sppsulfur');
+			emojis.sulfur = sulfur;
+		}
+		var glyphs = [salt,jupiter,jupiter,jupiter,mars,venus,mercury,luna,saturn,neptune,sol,sulfur];
+		parts.forEach((part,index)=>{
+			dice = part.match(/([0-9]+)p([0-9]+)/);
+			if (dice) {
+				diceSize = Math.min(12,parseInt(dice[2], 10));
+				dice = Math.max(1,parseInt(dice[1], 10));
+				while (dice > 0) {
+					result = glyphs[Math.floor(Math.random() * diceSize)];
+					builder.push(result);
+					dice--;
+				}
+			}
+		});
+		return 'RESULTS: ' + builder.join(',');
+	}
 
     var baseDice = async function (message,client,messageObject) {
         var dice;
@@ -1693,7 +1754,7 @@ try {
                 fs.writeFileSync('./config.json', JSON.stringify({discord:config, activeChannels:activeChannels, shadow:shadowChannels, regen:regen, cosmere: cosmereChannels}).replace(/\r?\n|\r/g,''));
             } else {
 				shadowChannels = shadowChannels.replace(channelID,'');
-				fs.writeFileSync('./config.json', JSON.stringify({discord:config, activeChannels:activeChannels, shadow:shadowChannels, regen:regen}).replace(/\r?\n|\r/g,''));
+				fs.writeFileSync('./config.json', JSON.stringify({discord:config, activeChannels:activeChannels, shadow:shadowChannels, regen:regen, cosmere: cosmereChannels}).replace(/\r?\n|\r/g,''));
 			}
 		} else if (message === '!regen') {
 			if (regen.indexOf(channelID) === -1) {
@@ -1808,6 +1869,8 @@ try {
 			result = owodDice(msg);
 		} else if (msg.match(/^[0-9]+?d/) || msg.match(/^plot$/)) {
 			result = await baseDice(msg,client,message);
+		} else if (msg.match(/^[0-9]+?p/)) {
+			result = await sevenPartDice(msg,client,message);
 		} else if (msg.match(/^[0-9]+?s/)) {
 			result = shadowrunDice(msg);
 		} else if (msg.match(/^[0-9]+?k/)) {
