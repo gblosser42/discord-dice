@@ -355,13 +355,20 @@ try {
 			emojis.sulfur = sulfur;
 		}
 		var glyphs = [salt,jupiter,jupiter,jupiter,mars,venus,mercury,luna,saturn,neptune,sol,sulfur];
+		var solarDie = [sulfur,sulfur,sulfur,jupiter,jupiter,mars,mars,venus,venus,mercury,mercury,luna,luna,saturn,saturn,neptune,neptune,sol,sol,sol];
+		var activeGlyphs = glyphs;
 		parts.forEach((part,index)=>{
 			dice = part.match(/([0-9]+)p([0-9]+)/);
 			if (dice) {
-				diceSize = Math.min(12,parseInt(dice[2], 10));
+				if (parseInt(dice[2]) === 20) {
+					activeGlyphs = solarDie;
+					diceSize = 20;
+				} else {
+					diceSize = Math.min(12,parseInt(dice[2], 10));
+				}
 				dice = Math.max(1,parseInt(dice[1], 10));
 				while (dice > 0) {
-					result = glyphs[Math.floor(Math.random() * diceSize)];
+					result = activeGlyphs[Math.floor(Math.random() * diceSize)];
 					builder.push(result);
 					dice--;
 				}
